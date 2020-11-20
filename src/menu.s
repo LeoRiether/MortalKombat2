@@ -3,7 +3,7 @@
 #
 
 .data
-    titlescreen_static.file: .string "assets/titlescreen_static.bin"
+    titlescreen_static.file: .string "assets/sub_test.d.bin"
     .align 3
 
 .text
@@ -24,6 +24,8 @@ menu.main:
     call sprites.draw
 
     sleep(2500)
+    li a7 110
+    ecall
 
 menu.main.exit:
     lw ra 0(sp)

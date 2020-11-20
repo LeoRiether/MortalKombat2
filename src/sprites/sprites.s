@@ -2,6 +2,8 @@
 # Stuff related to drawing sprites
 #
 
+.include "files.s"
+
 .text
 
 # Draws a sprite on (row=a1, col=a2) of the screen, on frame a3

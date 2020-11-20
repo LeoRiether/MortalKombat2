@@ -1,7 +1,15 @@
+.eqv dtframe 16 # Will it actually run at 60fps?
+
 .macro sleep(%ms)
     li a7 32
     li a0 %ms
     ecall
+.end_macro
+
+.macro swap_frame(%frame, %aux)
+    li %aux VGAFRAMESELECT
+    sw %frame 0(%aux)
+    xori %frame %frame 1
 .end_macro
 
 .macro linebreak()

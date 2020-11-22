@@ -12,6 +12,11 @@
     xori %frame %frame 1
 .end_macro
 
+.macro push(%arg, %into, %offset)
+    sw %into %offset(sp)
+    mv %into %arg
+.end_macro
+
 .macro linebreak()
     li a7 11
     li a0 '\n'

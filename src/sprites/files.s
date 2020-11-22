@@ -1,3 +1,9 @@
 .data
-    file.titlescreen_static: .string "assets/titlescreen_static.d.bin" # 31
-    file.sub_zero: .string "assets/sub_test.d.bin" # 21
+    file.titlescreen_static: .string "assets/titlescreen_static.bin" # 30
+    file.sub_test: .string "assets/sub_test.bin" # 20
+    file.sub_zero: .string "assets/sub0.bin" # 16
+    ss.scorpion: .string "assets/scorpion.ss.bin" # 23
+
+    file.deadpool: .string "assets/deadpool.bin" # 20
+
+    .align 3

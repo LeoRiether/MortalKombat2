@@ -63,6 +63,62 @@ sprites.draw.outer.control:
 sprites.draw.exit:
     ret
 
+# Draws a CROPPED sprite from a spritesheet with the following arguments:
+# a0 = address of the spritesheet
+# a1 = row
+# a2 = column
+# a3 = sprite column (row is always 0)
+# a4 = sprite width
+# a5 = sprite height
+# a6 = frame
+sprites.cdraw:
+    lw t6 0(a0) # t6 = width of the sprite
+    addi a0 a0 8
+
+    li t0 NUMCOLUNAS
+    mul t0 a1 t0
+    add t0 t0 a2
+    li t1 0xFF000000
+    slli a6 a6 20
+    or a6 t1 a6
+    add a6 t0 a6
+    # a6 = first pixel position in memory (on the right frame already)
+
+    add a0 a0 a3
+    # a0 = first sprite pixel position in memory
+
+sprites.cdraw.outer:
+    # We use a5=sprite height as a decrementing counter from now on
+    blez a5 sprites.cdraw.exit
+
+    mv t0 a4 # also a decrementing counter, now for the remaining width
+    mv t1 a6 # copy of the memory position we're drawing/writing to
+    mv t2 a0 # copy of the sprite buffer we're reading from
+    sprites.cdraw.inner:
+        blez t0 sprites.cdraw.outer.control
+
+        # Slower, but supports transparency:
+        lbu t4 0(t2)
+        li t3 0xc7
+        beq t4 t3 sprites.cdraw.skip
+        sb t4 0(t1)
+    sprites.cdraw.skip:
+        addi t2 t2 1
+        addi t1 t1 1
+        addi t0 t0 -1
+
+        j sprites.cdraw.inner
+
+sprites.cdraw.outer.control:
+    addi a5 a5 -1
+    addi a6 a6 NUMCOLUNAS
+    add  a0 a0 t6
+
+    j sprites.cdraw.outer
+
+sprites.cdraw.exit:
+    ret
+
 # Loads a sprite from a file and stores it in a buffer
 # You better hope the buffer has enough space (it should be at least `width × height + 8`,
 # the 8 is for 2 words: (width, height))

@@ -6,15 +6,17 @@
 
 .include "global.s"
 .include "sprites/sprites.s"
+
 .include "menu.s"
-.include "player/player.s"
+.include "game/game.s"
 
 .data
 
 
 .text
 main:
-    jal menu.main
+    call menu.main
+    call game.main
 
 main.exit:
     li a7 10

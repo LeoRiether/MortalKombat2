@@ -1,5 +1,4 @@
-.eqv dtframe 16 # Will it actually run at 60fps?
-.eqv UPDATE_ANIM_FRAMES 4
+.eqv dtframe 20
 
 .macro sleep(%ms)
     li a7 32
@@ -52,4 +51,8 @@
 
 .macro debug_hex(%reg)
     debug_with(%reg, 34)
+.end_macro
+
+.macro debug_char(%reg)
+    debug_with(%reg, 11)
 .end_macro

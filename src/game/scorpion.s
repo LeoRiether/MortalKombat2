@@ -2,8 +2,13 @@
 .data
 
     scorpion:
-        player0.id: .half aIdle aIdle aIdle aIdle aIdle aIdle
+        id: .half aIdle aIdle aIdle aIdle aIdle aIdle # 6
         .word 0, 0 # prefix sum needs this
-        player0.sizes: .word 43 102, 44 101, 43 100, 42 101, 43 102, 43 103
-        player0.next: .half 1, 2, 3, 4, 5, 0
-        player0.cur: .half 0
+        sizes: .word 43 102, 44 101, 43 100, 42 101, 43 102, 43 103
+        sizes_end:
+        delays: .byte funmed funmed funmed funmed funmed funmed # aIdle
+        next: .half 1, 2, 3, 4, 5, 0
+        back: .space 128
+
+        starts: .half
+            0

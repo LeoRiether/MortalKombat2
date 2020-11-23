@@ -7,7 +7,9 @@
 .text
 
 # Draws a sprite on (row=a1, col=a2) of the screen, on frame a3
-# PLEASE make sure the width is a multiple of 4! This is important and faster and stuff!
+# ~~PLEASE make sure the width is a multiple of 4! This is important and faster and stuff!~~
+# Currently does not require the stuff above, but this function is a contender for optimization
+# using the constraints above
 # a0 = address of the sprite
 # a1 = row
 # a2 = column

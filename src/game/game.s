@@ -2,14 +2,14 @@
 #  Fights and stuff
 #
 
-.eqv aIdle 0
+.include "anim_eqvs.s"
 
 .data
-    scorpion:
-        player0.id: .half aIdle aIdle aIdle aIdle aIdle aIdle
+    subzero:
+        player0.id: .half aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle
         .word 0, 0 # prefix sum needs this
-        player0.sizes: .word 43 102, 44 101, 43 100, 42 101, 43 102, 43 103
-        player0.next: .half 1, 2, 3, 4, 5, 0
+        player0.sizes: .word 37 99, 37 100, 37 101, 38 101, 39 100, 39 99, 39 100, 38 101, 37 101, 37 100
+        player0.next: .half 1 2 3 4 5 6 7 8 9 0
         player0.cur: .half 0
 
     also_scorpion:
@@ -42,16 +42,22 @@ game.main:
     jal game.load_assets
 
     li s11 0 # frame
+    li s9 UPDATE_ANIM_FRAMES # animation frame counter
 game.main.loop:
     csrr s10 time # now
 
     # Update animation frames
+    addi s9 s9 -1
+    bgez s9 game.main.loop.skip_animation_update
+    li s9 UPDATE_ANIM_FRAMES
+
     la a0 player0.cur
     la a1 player0.next
     call game.update_animation
     la a0 player1.cur
     la a1 player1.next
     call game.update_animation
+    game.main.loop.skip_animation_update:
 
     # Draw background
     la a0 bgbuf0
@@ -76,10 +82,25 @@ game.main.loop:
     mv a6 s11
     call sprites.cdraw
 
+    la a0 player1.ss
+    li a1 213
+    li a2 200
+    lh t0 player1.cur
+    slli t0 t0 3
+    la t1 player1.sizes
+    add t0 t0 t1
+    lw a3 -8(t0) # column
+    lw a4 0(t0)
+    sub a4 a4 a3 # width is calculated using psum
+    lw a5 4(t0) # height
+    sub a1 a1 a5
+    mv a6 s11
+    call sprites.cdraw
+
+
     swap_frame(s11, t0)
 
     addi t0 s10 dtframe # next time we should enter the loop
-    addi t0 t0 100
 game.main.loop.wait:
     csrr t1 time
     blt t1 t0 game.main.loop.wait
@@ -106,7 +127,7 @@ game.load_assets:
     call sprites.load
 
     # Load first player
-    la a0 ss.scorpion
+    la a0 ss.subzero
     la a1 player0.ss
     call sprites.load
 
@@ -118,6 +139,10 @@ game.load_assets:
     la a0 ss.scorpion
     la a1 player1.ss
     call sprites.load
+
+    la a0 player1.sizes
+    la a1 player1.next # technically a hack
+    jal game.psum_widths
 
 game.load_assets.exit:
     lw ra 0(sp)

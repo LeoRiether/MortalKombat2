@@ -1,4 +1,5 @@
 .eqv dtframe 16 # Will it actually run at 60fps?
+.eqv UPDATE_ANIM_FRAMES 4
 
 .macro sleep(%ms)
     li a7 32

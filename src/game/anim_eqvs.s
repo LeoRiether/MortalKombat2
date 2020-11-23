@@ -1,0 +1,1 @@
+.eqv aIdle 0

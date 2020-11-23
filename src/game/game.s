@@ -24,6 +24,12 @@
     player0.ss: .space 76808
     player1.ss: .space 76808
 
+    player0.side: .byte 0
+    player1.side: .byte 1
+
+    player0.position: .half 213, 36
+    player1.position: .half 213, 240
+
 .text
 
 # Runs a full fight
@@ -59,6 +65,22 @@ game.main.loop:
     call game.update_animation
     game.main.loop.skip_animation_update:
 
+    # Something that should be deleted
+    la a0 player0.position
+    lh t0 2(a0)
+    addi t0 t0 1
+    sh t0 2(a0)
+    lh t1 6(a0)
+    addi t1 t1 -1
+    sh t1 6(a0)
+
+    # Update sides (gets t0 and t1 from the block above)
+    la a0 player0.side
+    slt t0 t1 t0
+    sb t0 0(a0)
+    xori t0 t0 1
+    sb t0 1(a0)
+
     # Draw background
     la a0 bgbuf0
     mv a1 zero
@@ -66,10 +88,11 @@ game.main.loop:
     mv a3 s11
     call sprites.draw
 
-    # Draw players
+    # Draw player 0
     la a0 player0.ss
-    li a1 213
-    li a2 36
+    la a2 player0.position
+    lhu a1 0(a2)
+    lhu a2 2(a2)
     lh t0 player0.cur
     slli t0 t0 3
     la t1 player0.sizes
@@ -78,14 +101,16 @@ game.main.loop:
     lw a4 0(t0)
     sub a4 a4 a3 # width is calculated using psum
     lw a5 4(t0) # height
-    sub a1 a1 a5
+    sub a1 a1 a5 # drawn from bottom
     mv a6 s11
-    li a7 0
+    lbu a7 player0.side
     call sprites.cdraw
 
+    # Draw player 1
     la a0 player1.ss
-    li a1 213
-    li a2 200
+    la a2 player1.position
+    lhu a1 0(a2)
+    lhu a2 2(a2)
     lh t0 player1.cur
     slli t0 t0 3
     la t1 player1.sizes
@@ -94,9 +119,9 @@ game.main.loop:
     lw a4 0(t0)
     sub a4 a4 a3 # width is calculated using psum
     lw a5 4(t0) # height
-    sub a1 a1 a5
+    sub a1 a1 a5 # drawn from bottom
     mv a6 s11
-    li a7 1
+    lbu a7 player1.side
     call sprites.cdraw
 
 

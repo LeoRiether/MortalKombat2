@@ -80,6 +80,7 @@ game.main.loop:
     lw a5 4(t0) # height
     sub a1 a1 a5
     mv a6 s11
+    li a7 0
     call sprites.cdraw
 
     la a0 player1.ss
@@ -95,6 +96,7 @@ game.main.loop:
     lw a5 4(t0) # height
     sub a1 a1 a5
     mv a6 s11
+    li a7 1
     call sprites.cdraw
 
 

@@ -71,6 +71,7 @@ sprites.draw.exit:
 # a4 = sprite width
 # a5 = sprite height
 # a6 = frame
+# a7 = flip?
 sprites.cdraw:
     lw t6 0(a0) # t6 = width of the sprite
     addi a0 a0 8
@@ -94,6 +95,11 @@ sprites.cdraw.outer:
     mv t0 a4 # also a decrementing counter, now for the remaining width
     mv t1 a6 # copy of the memory position we're drawing/writing to
     mv t2 a0 # copy of the sprite buffer we're reading from
+
+    beqz a7 sprites.cdraw.inner # don't flip
+    add t2 t2 a4 # excitingly start from the other side
+    addi t2 t2 -1
+
     sprites.cdraw.inner:
         blez t0 sprites.cdraw.outer.control
 
@@ -102,11 +108,13 @@ sprites.cdraw.outer:
         li t3 0xc7
         beq t4 t3 sprites.cdraw.skip
         sb t4 0(t1)
-    sprites.cdraw.skip:
+        sprites.cdraw.skip:
         addi t2 t2 1
         addi t1 t1 1
         addi t0 t0 -1
 
+        beqz a7 sprites.cdraw.inner # don't flip
+        addi t2 t2 -2 # we added 1 already, but meant to add -1
         j sprites.cdraw.inner
 
 sprites.cdraw.outer.control:

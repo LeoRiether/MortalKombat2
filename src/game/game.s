@@ -28,6 +28,9 @@
         player1.delays: .byte funmed funmed funmed funmed funmed funmed # aIdle
         player1.next: .half 1, 2, 3, 4, 5, 0
         player1.back: .space 128
+        player1.starts: .half
+            0
+            0
 
     # TODO: define the maximum spritesheet size
     .word 0 # for alignment purposes
@@ -40,6 +43,7 @@
     player0.side: .byte 0
     player1.side: .byte 1
 
+    .word 0
     player0.position: .half 213, 36
     player1.position: .half 213, 240
 
@@ -82,6 +86,7 @@ game.main.loop:
     call game.update_animation
 
     # Do the thing written in the line below
+    call game.print_scancode
     call game.handle_input
 
     # Something that should be deleted
@@ -265,18 +270,33 @@ game.handle_input:
     add t2 t2 a1 # pointer to animation id
     lh t2 0(t2) # current animation id
 
-    # Read control bit
-    li a7 KDMMIO_Ctrl
+    li a7 KeyMap0
+
+    # This seems loop-able
+
+    # right
+    lw t0 4(a7)
+    srli t0 t0 scanRight
+    andi t0 t0 0x1
+    bnez t0 game.handle_input.right
+
+    # left
     lw t0 0(a7)
-    beqz t0 game.handle_input.none
+    srli t0 t0 scanLeft
+    andi t0 t0 0x1
+    bnez t0 game.handle_input.left
 
-    lw a7 4(a7) # read character
+    # up
+    lw t0 0(a7)
+    srli t0 t0 scanUp
+    andi t0 t0 0x1
+    bnez t0 game.handle_input.up
 
-    li t0 'd'
-    beq a7 t0 game.handle_input.right
-
-    li t0 'a'
-    beq a7 t0 game.handle_input.left
+    # down
+    lw t0 0(a7)
+    srli t0 t0 scanDown
+    andi t0 t0 0x1
+    bnez t0 game.handle_input.down
 
 game.handle_input.none:
     # Stop walking
@@ -304,6 +324,10 @@ game.handle_input.right:
 
     la a7 player0.cur
     sh zero 2(a7)
+    slli t0 t0 1
+    la t1 player0.starts
+    add t0 t0 t1
+    lh t0 0(t0)
     sh t0 0(a7)
 
     ret
@@ -323,6 +347,42 @@ game.handle_input.left.skip_negative:
 
     la a7 player0.cur
     sh zero 2(a7)
+    slli t0 t0 1
+    la t1 player0.starts
+    add t0 t0 t1
+    lh t0 0(t0)
     sh t0 0(a7)
 
+    ret
+
+game.handle_input.up:
+    # Move player
+    la a7 player0.position
+    lh t0 0(a7)
+    addi t0 t0 -3
+    sh t0 0(a7)
+
+    ret
+
+game.handle_input.down:
+    # Move player
+    la a7 player0.position
+    lh t0 0(a7)
+    addi t0 t0 3
+    sh t0 0(a7)
+
+    ret
+
+game.print_scancode:
+    ret
+    li a7 KDMMIO_Ctrl
+    lw t0 0(a7)
+    beqz t0 game.exit
+
+    lw t0 4(a7) # clear the bit
+    li a7 Buffer0Teclado
+    lb t0 0(a7)
+    debug_int(t0)
+
+game.exit:
     ret

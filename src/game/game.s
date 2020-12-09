@@ -8,17 +8,23 @@
     subzero:
         player0.id: .half aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle
                   aWalk aWalk aWalk aWalk aWalk aWalk aWalk aWalk aWalk
+                  aKick aKick aKick aKick aKick
         .word 0, 0 # prefix sum needs this
-        player0.sizes: .word 37 99, 37 100, 37 101, 38 101, 39 100, 39 99, 39 100, 38 101, 37 101, 37 100
-                     36 104, 31 104, 31 107, 34 103, 35 103, 31 103, 31 104, 34 105, 43 103
+        player0.sizes: .word 37 99, 37 100, 37 101, 38 101, 39 100, 39 99, 39 100, 38 101, 37 101, 37 100 # aIdle
+                     36 104, 31 104, 31 107, 34 103, 35 103, 31 103, 31 104, 34 105, 43 103 # aWalk
+                     40 106, 44 104, 76 92, 38 94, 44 104 # aKick
         player0.sizes_end:
         player0.delays: .byte funmed funmed funmed funmed funmed funslow funmed funmed funmed funmed # aIdle
                       funfast funfast funfast funfast funfast funfast funfast funfast funfast # aWalk
-        player0.next: .half 1 2 3 4 5 6 7 8 9 0 11 12 13 14 15 16 17 18 10
+                      funmed funmed funslow funmed funmed # aKick
+        player0.next: .half 1 2 3 4 5 6 7 8 9 0 # aIdle
+                            11 12 13 14 15 16 17 18 10 # aWalk
+                            20 21 22 23 0 # aKick
         player0.back: .space 128
         player0.starts: .half
             0 # aIdle
             10 # aWalk
+            19 # aKick
 
     scorpion:
         player1.id: .half aIdle aIdle aIdle aIdle aIdle aIdle
@@ -89,14 +95,10 @@ game.main.loop:
     call game.print_scancode
     call game.handle_input
 
-    # Something that should be deleted
+    # Load positions for legacy reasons
     la a0 player0.position
     lh t0 2(a0)
-    addi t0 t0 0
-    sh t0 2(a0)
     lh t1 6(a0)
-    addi t1 t1 0
-    sh t1 6(a0)
 
     # Update sides (gets t0 and t1 from the block above)
     la a0 player0.side
@@ -111,24 +113,6 @@ game.main.loop:
     mv a2 zero
     mv a3 s11
     call sprites.draw
-
-    # Draw player 0
-    la a0 player0.ss
-    la a2 player0.position
-    lhu a1 0(a2)
-    lhu a2 2(a2)
-    lh t0 player0.cur
-    slli t0 t0 3
-    la t1 player0.sizes
-    add t0 t0 t1
-    lw a3 -8(t0) # column
-    lw a4 0(t0)
-    sub a4 a4 a3 # width is calculated using psum
-    lw a5 4(t0) # height
-    sub a1 a1 a5 # drawn from bottom
-    mv a6 s11
-    lbu a7 player0.side
-    call sprites.cdraw
 
     # Draw player 1
     la a0 player1.ss
@@ -146,6 +130,24 @@ game.main.loop:
     sub a1 a1 a5 # drawn from bottom
     mv a6 s11
     lbu a7 player1.side
+    call sprites.cdraw
+
+    # Draw player 0
+    la a0 player0.ss
+    la a2 player0.position
+    lhu a1 0(a2)
+    lhu a2 2(a2)
+    lh t0 player0.cur
+    slli t0 t0 3
+    la t1 player0.sizes
+    add t0 t0 t1
+    lw a3 -8(t0) # column
+    lw a4 0(t0)
+    sub a4 a4 a3 # width is calculated using psum
+    lw a5 4(t0) # height
+    sub a1 a1 a5 # drawn from bottom
+    mv a6 s11
+    lbu a7 player0.side
     call sprites.cdraw
 
 
@@ -270,6 +272,11 @@ game.handle_input:
     add t2 t2 a1 # pointer to animation id
     lh t2 0(t2) # current animation id
 
+    # We should not accept input if the animation id is one of the following
+    li t0 aKick
+    beq t2 t0 game.handle_input.exit
+
+
     li a7 KeyMap0
 
     # This seems loop-able
@@ -297,6 +304,12 @@ game.handle_input:
     srli t0 t0 scanDown
     andi t0 t0 0x1
     bnez t0 game.handle_input.down
+
+    # u (kick)
+    lw t0 0(a7)
+    srli t0 t0 scanKick
+    andi t0 t0 0x1
+    bnez t0 game.handle_input.kick
 
 game.handle_input.none:
     # Stop walking
@@ -370,6 +383,29 @@ game.handle_input.down:
     lh t0 0(a7)
     addi t0 t0 3
     sh t0 0(a7)
+
+    ret
+
+game.handle_input.kick:
+    li t0 aIdle
+    beq t2 t0 game.handle_input.kick.default
+
+    li t0 aWalk
+    beq t2 t0 game.handle_input.kick.default
+
+    # can't kick
+    ret
+
+game.handle_input.kick.default:
+    # t1 = aKick start frame
+    li t0 aKick
+    slli t0 t0 1
+    la t1 player0.starts
+    add t1 t0 t1
+    lh t1 0(t1)
+
+    la t0 player0.cur
+    sh t1 0(t0)
 
     ret
 

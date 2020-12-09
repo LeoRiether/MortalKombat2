@@ -1,6 +1,7 @@
 # Animation states
 .eqv aIdle 0
 .eqv aWalk 1
+.eqv aKick 2
 
 # Frames until next
 .eqv funfast 4
@@ -13,3 +14,4 @@
 .eqv scanLeft 30 # 30, keymap 0
 .eqv scanUp 17 # 17, keymap 0
 .eqv scanDown 31 # 31 keymap 0
+.eqv scanKick 22 # 22 keymap 0

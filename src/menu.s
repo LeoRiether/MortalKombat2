@@ -19,7 +19,7 @@ menu.main:
     mv a3 s11 # frame
     call sprites.draw
 
-    sleep(100)
+    sleep(1000)
 
 menu.main.exit:
     lw ra 0(sp)

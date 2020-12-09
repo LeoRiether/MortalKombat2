@@ -7,7 +7,7 @@
 .text
 
 # Draws a sprite on (row=a1, col=a2) of the screen, on frame a3
-# ~~PLEASE make sure the width is a multiple of 2! This is important and faster and stuff!~~
+# ~~PLEASE make sure the width is a multiple of 4! This is important and faster and stuff!~~
 # Currently does not require the stuff above, but this function is a contender for optimization
 # using the constraints above
 # a0 = address of the sprite
@@ -15,14 +15,9 @@
 # a2 = column
 # a3 = frame, either 0 or 1
 sprites.draw:
-    mv t3 a0
-    addi a0 a0 16
-
     lw a4 4(a0) # height
     lw a5 0(a0) # width
     addi a0 a0 8
-
-    srai a5 a5 1
 
     li t0 NUMCOLUNAS
     mul t0 a1 t0
@@ -42,19 +37,19 @@ sprites.draw.outer:
     sprites.draw.inner:
         blez t0 sprites.draw.outer.control
 
-        lbu t2 0(a0)
-        andi t5 t2 0xf
-        add t5 t5 t3 # position of the color in the palette
-        lbu t5 0(t5)
-        sb t5 0(t1)
-        srli t5 t2 4
-        add t5 t5 t3 # position of the color in the palette
-        lbu t5 0(t5)
-        sb t5 1(t1)
+        # This is faster:
+        lw t2 0(a0)
+        sw t2 0(t1)
+        addi a0 a0 4
+        addi t1 t1 4
+        addi t0 t0 -4
 
-        addi a0 a0 1
-        addi t1 t1 2
-        addi t0 t0 -1
+        # Slower
+    #     lbu t2 0(a0)
+    #     sb t2 0(t1)
+    #     addi a0 a0 1
+    #     addi t1 t1 1
+    #     addi t0 t0 -1
 
         j sprites.draw.inner
 
@@ -77,13 +72,7 @@ sprites.draw.exit:
 # a6 = frame
 # a7 = flip?
 sprites.cdraw:
-    mv t3 a0
-    addi a0 a0 16
-
-    srai a4 a4 1
-
     lw t6 0(a0) # t6 = width of the sprite
-    srai t6 t6 1 # every byte stores 2 pixels!
     addi a0 a0 8
 
     li t0 NUMCOLUNAS
@@ -95,7 +84,6 @@ sprites.cdraw:
     add a6 t0 a6
     # a6 = first pixel position in memory (on the right frame already)
 
-    srai a3 a3 1
     add a0 a0 a3
     # a0 = first sprite pixel position in memory
 
@@ -113,41 +101,16 @@ sprites.cdraw.outer:
 
     sprites.cdraw.inner:
         blez t0 sprites.cdraw.outer.control
-        bnez a7 sprites.cdraw.inner_flipped
 
-    sprites.cdraw.inner_not_flipped:
-        # Draw 2 pixels
+        # Slower
         lbu t4 0(t2)
-        andi t5 t4 0xf
-        add t5 t5 t3 # position of the color in the palette
-        lbu t5 0(t5)
-        sb t5 0(t1)
-        srli t5 t4 4
-        add t5 t5 t3 # position of the color in the palette
-        lbu t5 0(t5)
-        sb t5 1(t1)
-
+        sb t4 0(t1)
         addi t2 t2 1
-        j sprites.cdraw.inner_after
-
-    sprites.cdraw.inner_flipped:
-        # Draw 2 pixels
-        lbu t4 0(t2)
-        andi t5 t4 0xf
-        add t5 t5 t3 # position of the color in the palette
-        lbu t5 0(t5)
-        sb t5 1(t1)
-        srli t5 t4 4
-        add t5 t5 t3 # position of the color in the palette
-        lbu t5 0(t5)
-        sb t5 0(t1)
-
-        addi t2 t2 -1
-
-    sprites.cdraw.inner_after:
-        addi t1 t1 2
+        addi t1 t1 1
         addi t0 t0 -1
 
+        beqz a7 sprites.cdraw.inner # don't flip
+        addi t2 t2 -2 # we added 1 already, but meant to add -1
         j sprites.cdraw.inner
 
 sprites.cdraw.outer.control:
@@ -161,7 +124,7 @@ sprites.cdraw.exit:
     ret
 
 # Loads a sprite from a file and stores it in a buffer
-# You better hope the buffer has enough space (it should be at least `width × height / 2 + 8 + 16`,
+# You better hope the buffer has enough space (it should be at least `width × height + 8`,
 # the 8 is for 2 words: (width, height))
 # a0 = file string
 # a1 = buffer address
@@ -183,17 +146,16 @@ sprites.load:
 
     li a7 63
     mv a1 s1
-    li a2 24 # Read the palette and (width, height)
+    li a2 8 # Read the first two words
     ecall
 
-    lw t0 16(s1)
-    lw t1 20(s1)
-    mul a2 t0 t1 # Read t0 * t1 / 2 more bytes
-    srai a2 a2 1
+    lw t0 0(s1)
+    lw t1 4(s1)
+    mul a2 t0 t1 # Read t0 * t1 more bytes
 
     li a7 63
     mv a0 s0
-    addi a1 s1 24
+    addi a1 s1 8
     ecall
 
 sprites.load.exit:

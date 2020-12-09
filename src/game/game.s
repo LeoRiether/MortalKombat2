@@ -173,7 +173,7 @@ game.load_assets:
     sw ra 0(sp)
 
     # Load background
-    la a0 file.deadpool
+    la a0 file.portal
     la a1 bgbuf0
     call sprites.load
 

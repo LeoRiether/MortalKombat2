@@ -2,3 +2,5 @@ assets/*.exe
 assets/*.c
 fpgrars*
 Rars*
+
+sprites/old_sprites.s

@@ -3,28 +3,35 @@
 #
 
 .include "anim_eqvs.s"
+.include "input.s"
 
 .data
+
     subzero:
         player0.id: .half aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle
                   aWalk aWalk aWalk aWalk aWalk aWalk aWalk aWalk aWalk
+                  aCrouch aCrouch
                   aKick aKick aKick aKick aKick
         .word 0, 0 # prefix sum needs this
         player0.sizes: .word 37 99, 37 100, 37 101, 38 101, 39 100, 39 99, 39 100, 38 101, 37 101, 37 100 # aIdle
                      36 104, 31 104, 31 107, 34 103, 35 103, 31 103, 31 104, 34 105, 43 103 # aWalk
+                     40 76, 40 59 # aCrouch
                      40 106, 44 104, 76 92, 38 94, 44 104 # aKick
         player0.sizes_end:
         player0.delays: .byte funmed funmed funmed funmed funmed funslow funmed funmed funmed funmed # aIdle
                       funfast funfast funfast funfast funfast funfast funfast funfast funfast # aWalk
+                      funfast funfast # aCrouch
                       funmed funmed funslow funmed funmed # aKick
         player0.next: .half 1 2 3 4 5 6 7 8 9 0 # aIdle
                             11 12 13 14 15 16 17 18 10 # aWalk
-                            20 21 22 23 0 # aKick
+                            20 20 # aCrouch
+                            22 23 24 25 0 # aKick
         player0.back: .space 128
         player0.starts: .half
             0 # aIdle
             10 # aWalk
-            19 # aKick
+            19 # aCrouch
+            21 # aKick
 
     scorpion:
         player1.id: .half aIdle aIdle aIdle aIdle aIdle aIdle
@@ -91,9 +98,9 @@ game.main.loop:
     la a2 player1.delays
     call game.update_animation
 
-    # Do the thing written in the line below
-    call game.print_scancode
-    call game.handle_input
+    # Do the thing written in the lines below (unless it's commented)
+    # call input.print_scancode
+    call input.handle
 
     # Load positions for legacy reasons
     la a0 player0.position
@@ -261,164 +268,4 @@ game.update_animation:
     sh a2 2(a0)
 
 game.update_animation.exit:
-    ret
-
-# Read input and decide if something should be done about it
-game.handle_input:
-    # Load animation status, it's always useful
-    lb t1 player0.cur # current animation frame
-    la a1 player0.id
-    slli t2 t1 1
-    add t2 t2 a1 # pointer to animation id
-    lh t2 0(t2) # current animation id
-
-    # We should not accept input if the animation id is one of the following
-    li t0 aKick
-    beq t2 t0 game.handle_input.exit
-
-
-    li a7 KeyMap0
-
-    # This seems loop-able
-
-    # right
-    lw t0 4(a7)
-    srli t0 t0 scanRight
-    andi t0 t0 0x1
-    bnez t0 game.handle_input.right
-
-    # left
-    lw t0 0(a7)
-    srli t0 t0 scanLeft
-    andi t0 t0 0x1
-    bnez t0 game.handle_input.left
-
-    # up
-    lw t0 0(a7)
-    srli t0 t0 scanUp
-    andi t0 t0 0x1
-    bnez t0 game.handle_input.up
-
-    # down
-    lw t0 0(a7)
-    srli t0 t0 scanDown
-    andi t0 t0 0x1
-    bnez t0 game.handle_input.down
-
-    # u (kick)
-    lw t0 0(a7)
-    srli t0 t0 scanKick
-    andi t0 t0 0x1
-    bnez t0 game.handle_input.kick
-
-game.handle_input.none:
-    # Stop walking
-    li t3 aWalk
-    beq t2 t3 game.handle_input.reset_anim_to_idle
-
-game.handle_input.exit:
-    ret
-
-game.handle_input.reset_anim_to_idle:
-    la t0 player0.cur
-    sw zero 0(t0) # stores both the new animation frame and frames until next update
-    ret
-
-game.handle_input.right:
-    # Move player
-    la a7 player0.position
-    lh t0 2(a7)
-    addi t0 t0 3
-    sh t0 2(a7)
-
-    # Set animation to aWalk
-    li t0 aWalk
-    beq t2 t0 game.handle_input.exit # no need
-
-    la a7 player0.cur
-    sh zero 2(a7)
-    slli t0 t0 1
-    la t1 player0.starts
-    add t0 t0 t1
-    lh t0 0(t0)
-    sh t0 0(a7)
-
-    ret
-
-game.handle_input.left:
-    # Move player
-    la a7 player0.position
-    lh t0 2(a7)
-    addi t0 t0 -3
-    bltz t0 game.handle_input.left.skip_negative
-    sh t0 2(a7)
-game.handle_input.left.skip_negative:
-
-    # Set animation to aWalk
-    li t0 aWalk
-    beq t2 t0 game.handle_input.exit # no need
-
-    la a7 player0.cur
-    sh zero 2(a7)
-    slli t0 t0 1
-    la t1 player0.starts
-    add t0 t0 t1
-    lh t0 0(t0)
-    sh t0 0(a7)
-
-    ret
-
-game.handle_input.up:
-    # Move player
-    la a7 player0.position
-    lh t0 0(a7)
-    addi t0 t0 -3
-    sh t0 0(a7)
-
-    ret
-
-game.handle_input.down:
-    # Move player
-    la a7 player0.position
-    lh t0 0(a7)
-    addi t0 t0 3
-    sh t0 0(a7)
-
-    ret
-
-game.handle_input.kick:
-    li t0 aIdle
-    beq t2 t0 game.handle_input.kick.default
-
-    li t0 aWalk
-    beq t2 t0 game.handle_input.kick.default
-
-    # can't kick
-    ret
-
-game.handle_input.kick.default:
-    # t1 = aKick start frame
-    li t0 aKick
-    slli t0 t0 1
-    la t1 player0.starts
-    add t1 t0 t1
-    lh t1 0(t1)
-
-    la t0 player0.cur
-    sh t1 0(t0)
-
-    ret
-
-game.print_scancode:
-    ret
-    li a7 KDMMIO_Ctrl
-    lw t0 0(a7)
-    beqz t0 game.exit
-
-    lw t0 4(a7) # clear the bit
-    li a7 Buffer0Teclado
-    lb t0 0(a7)
-    debug_int(t0)
-
-game.exit:
     ret

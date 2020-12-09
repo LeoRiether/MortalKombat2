@@ -1,6 +1,6 @@
 .data
     # Static buffers to put backgrounds in
-    bgbuf0: .space 76808
+    bgbuf0: .space 38424
 
     unimplemented.str: .string "reached unimplemented function!\n"
 

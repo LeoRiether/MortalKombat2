@@ -37,7 +37,10 @@ palette = list({ tup2byte(pixel) for pixel in im.getdata() })
 
 print(f"Found \033[92m{len(palette)}\033[0m pixels: {palette}")
 if len(palette) > 16:
-    print("More than 16 pixels? Tough luck, this isn't going to work very well")
+    print("Found more than 16 colors, quantizing")
+    im = im.quantize(colors=16, dither=Image.FLOYDSTEINBERG)
+    im = im.convert("RGB") # unpalette so I can palette the image myself (not the best decision)
+    palette = list({ tup2byte(pixel) for pixel in im.getdata() })
 
 palette = palette[0:min(len(palette), 16)]
 resize(palette, 16, 0xC7)
@@ -59,5 +62,3 @@ with open(outfile, 'wb') as f:
         f.write(struct.pack('<B', (p1 << 4) | p0))
 
 print("\033[92mDone\033[0m")
-
-im.close()

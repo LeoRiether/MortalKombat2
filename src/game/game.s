@@ -106,14 +106,30 @@ game.main.loop:
     # Draw health bars
     la a0 player0.health
     lbu a0 0(a0)
-    li a1 10
+    li a1 16
     mv a2 s11
     call sprites.draw_hp
     la a0 player1.health
     lbu a0 0(a0)
-    li a1 210
+    li a1 204
     mv a2 s11
     call sprites.draw_hp
+
+    # Draw player names
+    li a7 104
+    la a0 player0.name
+    li a1 16 # x
+    li a2 18 # y
+    li a3 0xc747
+    mv a4 s11
+    ecall
+    li a7 104
+    la a0 player1.name
+    li a1 204 # x
+    li a2 18 # y
+    li a3 0xc747
+    mv a4 s11
+    ecall
 
     addi t0 s10 dtframe # next time we should enter the loop
 game.main.loop.wait:

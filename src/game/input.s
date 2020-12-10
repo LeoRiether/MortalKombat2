@@ -3,7 +3,7 @@
 # Requires "anim_eqvs.s" to be included before
 #
 
-.eqv scanRight 1 # 32, keymap1
+.eqv scanRight 1 # 32, keymap 1
 .eqv scanLeft 0x40000000 # 30, keymap 0
 .eqv scanUp 0x20000 # 17, keymap 0
 .eqv scanDown 0x80000000 # 31 keymap 0
@@ -32,7 +32,7 @@ input.handle:
     add t2 t2 a1 # pointer to animation id
     lh t2 0(t2) # current animation id
 
-    # We should not accept input if the animation is an attack (> aCrouch
+    # We should not accept input if the animation is an attack (> aCrouch)
     li t0 aCrouch
     bgt t2 t0 input.handle.exit
 

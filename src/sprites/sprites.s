@@ -205,10 +205,34 @@ sprites.load.exit:
 
 # Draws a health bar
 # a0 = hp
-# a1 = row
-# a2 = column
+# a1 = column
+# a2 = frame
 sprites.draw_hp:
+    li a3 10 # Remaining height
 
+    li a7 0xff001400 # Start of line 16ish in the video memory
+    slli a2 a2 20
+    or a7 a7 a2
+    add a7 a7 a1
+
+sprites.draw_hp.outer:
+    li a4 100 # Current health position (counts down to 1)
+    addi a6 a7 99 # position in video memory (last pixel of the bar)
+
+    sprites.draw_hp.inner:
+        li t6 48 # load green
+        ble a4 a0 sprites.draw_hp.inner.control # don't load the red
+        li t6 5 # do load the red
+        sprites.draw_hp.inner.control:
+
+        sb t6 0(a6)
+        addi a6 a6 -1
+        addi a4 a4 -1
+        bgez a4 sprites.draw_hp.inner
+
+    addi a3 a3 -1
+    addi a7 a7 320
+    bgez a3 sprites.draw_hp.outer
 
 sprites.draw_hp.exit:
     ret

@@ -52,6 +52,9 @@
     player0.side: .byte 0
     player1.side: .byte 1
 
+    player0.health: .byte 50
+    player1.health: .byte 30
+
     .word 0
     player0.position: .half 213, 36
     player1.position: .half 213, 240

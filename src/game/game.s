@@ -103,6 +103,17 @@ game.main.loop:
     lbu a7 player0.side
     call sprites.cdraw
 
+    # Draw health bars
+    la a0 player0.health
+    lbu a0 0(a0)
+    li a1 10
+    mv a2 s11
+    call sprites.draw_hp
+    la a0 player1.health
+    lbu a0 0(a0)
+    li a1 210
+    mv a2 s11
+    call sprites.draw_hp
 
     addi t0 s10 dtframe # next time we should enter the loop
 game.main.loop.wait:
@@ -165,6 +176,11 @@ game.reset:
     sw t0 0(a0)
     li t0 15728853
     sw t0 4(a0)
+
+    # Reset hp
+    la a0 player0.health
+    li t0 25700 # 100 hp for both
+    sh t0 0(a0)
 
     # Reset time to end round
     # I don't really know why I use a register for this

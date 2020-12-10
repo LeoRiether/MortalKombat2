@@ -4,61 +4,7 @@
 
 .include "anim_eqvs.s"
 .include "input.s"
-
-.data
-
-    subzero:
-        player0.id: .half aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle
-                  aWalk aWalk aWalk aWalk aWalk aWalk aWalk aWalk aWalk
-                  aCrouch aCrouch
-                  aKick aKick aKick aKick aKick
-        .word 0, 0 # prefix sum needs this
-        player0.sizes: .word 38 99, 38 100, 38 101, 38 101, 40 100, 40 99, 40 100, 38 101, 38 101, 38 100 # aIdle
-                     36 104, 32 104, 32 107, 34 103, 36 103, 32 103, 32 104, 34 105, 44 103 # aWalk
-                     40 76, 40 59 # aCrouch
-                     40 106, 44 104, 76 92, 38 94, 44 104 # aKick
-        player0.sizes_end:
-        player0.delays: .byte funmed funmed funmed funmed funmed funslow funmed funmed funmed funmed # aIdle
-                      funfast funfast funfast funfast funfast funfast funfast funfast funfast # aWalk
-                      funfast funfast # aCrouch
-                      funmed funmed funslow funmed funmed # aKick
-        player0.next: .half 1 2 3 4 5 6 7 8 9 0 # aIdle
-                            11 12 13 14 15 16 17 18 10 # aWalk
-                            20 20 # aCrouch
-                            22 23 24 25 0 # aKick
-        player0.back: .space 128
-        player0.starts: .half
-            0 # aIdle
-            10 # aWalk
-            19 # aCrouch
-            21 # aKick
-
-    scorpion:
-        player1.id: .half aIdle aIdle aIdle aIdle aIdle aIdle
-        .word 0, 0 # prefix sum needs this
-        player1.sizes: .word 43 102, 44 101, 43 100, 42 101, 43 102, 43 103
-        player1.sizes_end:
-        player1.delays: .byte funmed funmed funmed funmed funmed funmed # aIdle
-        player1.next: .half 1, 2, 3, 4, 5, 0
-        player1.back: .space 128
-        player1.starts: .half
-            0
-            0
-
-    # TODO: define the maximum spritesheet size
-    .word 0 # for alignment purposes
-    player0.ss: .space 76808
-    player1.ss: .space 76808
-
-    player0.cur: .half 0, 0 # current animation, how many frames until an update should be made
-    player1.cur: .half 0, 0
-
-    player0.side: .byte 0
-    player1.side: .byte 1
-
-    .word 0
-    player0.position: .half 213, 36
-    player1.position: .half 213, 240
+.include "data.s"
 
 .text
 
@@ -89,13 +35,9 @@ game.main.loop:
     sub s9 s9 t0
 
     # Update animation frames
-    la a0 player0.cur
-    la a1 player0.next
-    la a2 player0.delays
+    la a0 player0
     call game.update_animation
-    la a0 player1.cur
-    la a1 player1.next
-    la a2 player1.delays
+    la a0 player1
     call game.update_animation
 
     # Do the thing written in the lines below (unless it's commented)
@@ -193,7 +135,11 @@ game.load_assets:
 
     la a0 player0.sizes
     la a1 player0.sizes_end
-    jal game.psum_widths
+    call game.psum_widths
+
+    la a0 player0.back
+    la a1 player0.next
+    call game.build_back_anim
 
     # Load second player
     la a0 ss.scorpion
@@ -202,7 +148,11 @@ game.load_assets:
 
     la a0 player1.sizes
     la a1 player1.sizes_end
-    jal game.psum_widths
+    call game.psum_widths
+
+    la a0 player1.back
+    la a1 player1.next
+    call game.build_back_anim
 
 game.load_assets.exit:
     lw ra 0(sp)
@@ -244,28 +194,49 @@ game.psum_widths:
 game.psw.exit:
     ret
 
-# Goes to the next animation frame of player `a0`
-# a0 = player.cur
+# Builds player.back based on player.next
+# Assumes begin(player.back) = end(player.next)
+# a0 = player.back
 # a1 = player.next
-# a2 = player.delays
+game.build_back_anim:
+    li a2 0 # current animation frame index
+game.bba.loop:
+    # beware the pointer manipulation
+    lhu t0 0(a1) # t0 = next[i]
+    slli t0 t0 1
+    add t0 t0 a0 # t0 = &back[next[i]]
+    sh a2 0(t0) # back[next[i]] = a2
+
+    addi a1 a1 2
+    addi a2 a2 1
+    blt a1 a0 game.bba.loop
+
+game.bba.exit:
+    ret
+
+# Goes to the next animation frame of player `a0`
+# a0 = player
 game.update_animation:
-    lh t1 2(a0) # how many frames until we should change frame
+    lw a1 28(a0) # player.cur
+    lh t1 2(a1) # how many frames until we should change frame
     addi t1 t1 -1
-    sh t1 2(a0)
+    sh t1 2(a1)
     bgtz t1 game.update_animation.exit
 
-    lh t0 0(a0) # current frame
+    lhu t0 0(a1) # current frame
 
     # Update frame
+    lw a2 12(a0) # player.next
     slli t0 t0 1
-    add t0 t0 a1
+    add t0 t0 a2
     lh t0 0(t0) # next frame
-    sw t0 0(a0)
+    sw t0 0(a1)
 
     # Update how many frames until change
-    add a2 t0 a2
-    lbu a2 0(a2)
-    sh a2 2(a0)
+    lw a3 8(a0) # player.delays
+    add a3 t0 a3
+    lbu a3 0(a3)
+    sh a3 2(a1)
 
 game.update_animation.exit:
     ret

@@ -131,12 +131,14 @@ game.main.loop:
 
     # Draw number of wins
     li a0 0
-    li a1 16
+    li a1 15
     li a2 3
     li a3 0xc7ff
     call printIntUnsigned
+    li a0 1 # actual number of wins
+    call printIntUnsigned
     la a0 str.wins
-    li a1 32
+    li a1 38
     call printString
 
     addi t0 s10 dtframe # next time we should enter the loop

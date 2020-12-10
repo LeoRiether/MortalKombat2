@@ -202,3 +202,13 @@ sprites.load.exit:
     lw ra 8(sp)
     addi sp sp 12
     ret
+
+# Draws a health bar
+# a0 = hp
+# a1 = row
+# a2 = column
+sprites.draw_hp:
+
+
+sprites.draw_hp.exit:
+    ret

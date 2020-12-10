@@ -3,20 +3,6 @@
 #
 
 .data
-    # Maybe this wasn't a good idea, takes up quite a bit of memory
-    player0: .word
-#   0           4              8
-    player0.id, player0.sizes, player0.delays,
-#   12            16            20
-    player0.next, player0.back, player0.starts,
-#   24          28           32            36
-    player0.ss, player0.cur, player0.side, player0.position
-
-    player1: .word
-    player1.id, player1.sizes, player1.delays,
-    player1.next, player1.back, player1.starts,
-    player1.ss, player1.cur, player1.side, player1.position
-
     subzero:
         player0.id: .half aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle aIdle
                   aWalk aWalk aWalk aWalk aWalk aWalk aWalk aWalk aWalk

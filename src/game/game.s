@@ -35,9 +35,13 @@ game.main.loop:
     sub s9 s9 t0
 
     # Update animation frames
-    la a0 player0
+    la a0 player0.cur
+    la a1 player0.next
+    la a2 player0.delays
     call game.update_animation
-    la a0 player1
+    la a0 player1.cur
+    la a1 player1.next
+    la a2 player1.delays
     call game.update_animation
 
     # Do the thing written in the lines below (unless it's commented)
@@ -137,10 +141,6 @@ game.load_assets:
     la a1 player0.sizes_end
     call game.psum_widths
 
-    la a0 player0.back
-    la a1 player0.next
-    call game.build_back_anim
-
     # Load second player
     la a0 ss.scorpion
     la a1 player1.ss
@@ -149,10 +149,6 @@ game.load_assets:
     la a0 player1.sizes
     la a1 player1.sizes_end
     call game.psum_widths
-
-    la a0 player1.back
-    la a1 player1.next
-    call game.build_back_anim
 
 game.load_assets.exit:
     lw ra 0(sp)
@@ -194,49 +190,27 @@ game.psum_widths:
 game.psw.exit:
     ret
 
-# Builds player.back based on player.next
-# Assumes begin(player.back) = end(player.next)
-# a0 = player.back
-# a1 = player.next
-game.build_back_anim:
-    li a2 0 # current animation frame index
-game.bba.loop:
-    # beware the pointer manipulation
-    lhu t0 0(a1) # t0 = next[i]
-    slli t0 t0 1
-    add t0 t0 a0 # t0 = &back[next[i]]
-    sh a2 0(t0) # back[next[i]] = a2
-
-    addi a1 a1 2
-    addi a2 a2 1
-    blt a1 a0 game.bba.loop
-
-game.bba.exit:
-    ret
-
 # Goes to the next animation frame of player `a0`
-# a0 = player
+# a0 = player.cur
+# a1 = player.next
+# a2 = player.delays
 game.update_animation:
-    lw a1 28(a0) # player.cur
-    lh t1 2(a1) # how many frames until we should change frame
+    lh t1 2(a0) # how many frames until we should change frame
     addi t1 t1 -1
-    sh t1 2(a1)
+    sh t1 2(a0)
     bgtz t1 game.update_animation.exit
-
-    lhu t0 0(a1) # current frame
+    lh t0 0(a0) # current frame
 
     # Update frame
-    lw a2 12(a0) # player.next
     slli t0 t0 1
-    add t0 t0 a2
+    add t0 t0 a1
     lh t0 0(t0) # next frame
-    sw t0 0(a1)
+    sw t0 0(a0)
 
     # Update how many frames until change
-    lw a3 8(a0) # player.delays
-    add a3 t0 a3
-    lbu a3 0(a3)
-    sh a3 2(a1)
+    add a2 t0 a2
+    lbu a2 0(a2)
+    sh a2 2(a0)
 
 game.update_animation.exit:
     ret

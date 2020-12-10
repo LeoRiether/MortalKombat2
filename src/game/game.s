@@ -115,13 +115,20 @@ game.main.loop:
     mv a2 s11
     call sprites.draw_hp
 
-    # Careful with the next two steps, some arguments carry over from one function to the other!
+    # Careful with the steps that use SYSTEm calls, some arguments carry over from one function to the other!
     # for example, a4 = frame is only set in the next call
+    # Also, SYSTEMv21 calls use some saved registers!
+    # So let's save the ones we need, hopefully we won't forget any
+    addi sp sp -12
+    sw s11 0(sp)
+    sw s10 4(sp)
+    sw s9 8(sp)
+
     # Draw player names
     la a0 player0.name
     li a1 16 # x
     li a2 18 # y
-    li a3 0xc747
+    li a3 0xc700
     mv a4 s11
     call printString
     la a0 player1.name
@@ -140,6 +147,19 @@ game.main.loop:
     la a0 str.wins
     li a1 38
     call printString
+
+    # Draw timer
+    lw s9 8(sp)
+    srai a0 s9 10 # poor man's divide by 1000
+    li a1 150
+    li a2 18
+    call printIntUnsigned
+
+    # Restore saved registers
+    lw s11 0(sp)
+    lw s10 4(sp)
+    lw s9 8(sp)
+    addi sp sp 12
 
     addi t0 s10 dtframe # next time we should enter the loop
 game.main.loop.wait:
@@ -210,7 +230,7 @@ game.reset:
 
     # Reset time to end round
     # I don't really know why I use a register for this
-    li s9 99999
+    li s9 102390
 
 game.reset.exit:
     ret

@@ -172,4 +172,10 @@ input.handle.kick.default:
     la t0 player0.cur
     sh t1 0(t0)
 
+    # Poor scorpion
+    la a0 player1.health
+    lbu a1 0(a0)
+    addi a1 a1 -10
+    sb a1 0(a0)
+
     ret

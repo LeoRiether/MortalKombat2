@@ -115,21 +115,29 @@ game.main.loop:
     mv a2 s11
     call sprites.draw_hp
 
+    # Careful with the next two steps, some arguments carry over from one function to the other!
+    # for example, a4 = frame is only set in the next call
     # Draw player names
-    li a7 104
     la a0 player0.name
     li a1 16 # x
     li a2 18 # y
     li a3 0xc747
     mv a4 s11
-    ecall
-    li a7 104
+    call printString
     la a0 player1.name
     li a1 204 # x
     li a2 18 # y
-    li a3 0xc747
-    mv a4 s11
-    ecall
+    call printString
+
+    # Draw number of wins
+    li a0 0
+    li a1 16
+    li a2 3
+    li a3 0xc7ff
+    call printIntUnsigned
+    la a0 str.wins
+    li a1 32
+    call printString
 
     addi t0 s10 dtframe # next time we should enter the loop
 game.main.loop.wait:

@@ -3,11 +3,11 @@
 # Requires "anim_eqvs.s" to be included before
 #
 
-.eqv scanRight 0 # 32, keymap1
-.eqv scanLeft 30 # 30, keymap 0
-.eqv scanUp 17 # 17, keymap 0
-.eqv scanDown 31 # 31 keymap 0
-.eqv scanKick 22 # 22 keymap 0
+.eqv scanRight 1 # 32, keymap1
+.eqv scanLeft 0x40000000 # 30, keymap 0
+.eqv scanUp 0x20000 # 17, keymap 0
+.eqv scanDown 0x80000000 # 31 keymap 0
+.eqv scanKick 0x400000 # 22 keymap 0
 
 input.print_scancode:
     li a7 KDMMIO_Ctrl
@@ -43,32 +43,27 @@ input.handle:
 
     # u (kick)
     lw t0 0(a7)
-    srli t0 t0 scanKick
-    andi t0 t0 0x1
+    andi t0 t0 scanKick
     bnez t0 input.handle.kick
 
     # right
     lw t0 4(a7)
-    srli t0 t0 scanRight
-    andi t0 t0 0x1
+    andi t0 t0 scanRight
     bnez t0 input.handle.right
 
     # left
     lw t0 0(a7)
-    srli t0 t0 scanLeft
-    andi t0 t0 0x1
+    andi t0 t0 scanLeft
     bnez t0 input.handle.left
 
     # up
     lw t0 0(a7)
-    srli t0 t0 scanUp
-    andi t0 t0 0x1
+    andi t0 t0 scanUp
     bnez t0 input.handle.up
 
     # down
     lw t0 0(a7)
-    srli t0 t0 scanDown
-    andi t0 t0 0x1
+    andi t0 t0 scanDown
     bnez t0 input.handle.down
 
 input.handle.none:

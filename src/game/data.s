@@ -56,8 +56,8 @@
     player1.health: .byte 30
 
     .word 0
-    player0.position: .half 213, 36
-    player1.position: .half 213, 240
+    player0.position: .half 213, 26
+    player1.position: .half 213, 250
 
     player0.name: .string "Sub Zero"
     player1.name: .string "Scorpion"

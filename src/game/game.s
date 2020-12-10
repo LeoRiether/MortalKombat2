@@ -195,12 +195,12 @@ game.load_assets.exit:
 # Resets the game so a previous round doesn't affect the initial player positions and stuff
 game.reset:
     # Reset player positions
-    # player0.position: .half 213, 36
-    # player1.position: .half 213, 240
+    # player0.position: .half 213, 26
+    # player1.position: .half 213, 250
     la a0 player0.position
-    li t0 3670229
+    li t0 1704149
     sw t0 0(a0)
-    li t0 15728853
+    li t0 16384213
     sw t0 4(a0)
 
     # Reset hp

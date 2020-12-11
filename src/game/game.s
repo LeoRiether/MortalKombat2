@@ -233,10 +233,6 @@ game.load_assets:
     la a1 player1.ss
     call sprites.load
 
-    # Above Zero
-    la a0 player1.ss
-    call sprites.invert
-
     la a0 player1.sizes
     la a1 player1.sizes_end
     call game.psum_widths
@@ -251,11 +247,11 @@ game.reset:
     # Reset player positions
     # player0.position: .half 213, 26, 0, 0
     # player1.position: .half 213, 250, 0, 0
-    # la a0 player0.position
-    # li t0 1704149
-    # sw t0 0(a0)
-    # li t0 16384213
-    # sw t0 8(a0)
+    la a0 player0.position
+    li t0 1704149
+    sw t0 0(a0)
+    li t0 16384213
+    sw t0 8(a0)
 
     # Reset hp
     la a0 player0.health

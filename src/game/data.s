@@ -76,4 +76,4 @@
     player1.position: .half 213, 250, 0, 0
 
     player0.name: .string "Liu Kang"
-    player1.name: .string "Above Zero"
+    player1.name: .string "Sub Zero"

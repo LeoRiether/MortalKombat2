@@ -1,5 +1,5 @@
 .data
-    file.titlescreen_static: .string "assets/titlescreen_static.packed.bin" # 30
+    file.titlescreen_static: .string "assets/MKI.packed.bin" # 30
     file.sub_test: .string "assets/sub_test.bin" # 20
     file.sub_zero: .string "assets/sub0.bin" # 16
     ss.scorpion: .string "assets/scorpion.ss.packed.bin" # 23

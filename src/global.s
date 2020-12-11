@@ -3,5 +3,6 @@
     bgbuf0: .space 38424
 
     str.wins: .string "wins"
+    str.flawless: .string "Flawless Victory"
 
 .text

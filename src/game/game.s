@@ -51,7 +51,7 @@ game.main.loop:
     # Load positions for legacy reasons
     la a0 player0.position
     lh t0 2(a0)
-    lh t1 6(a0)
+    lh t1 10(a0)
 
     # Update sides (gets t0 and t1 from the block above)
     la a0 player0.side
@@ -59,6 +59,39 @@ game.main.loop:
     sb t0 0(a0)
     xori t0 t0 1
     sb t0 1(a0)
+
+    # Update width and height from sprites
+    # Update player 1
+    lh t0 player1.cur
+    slli t0 t0 3
+    la t1 player1.sizes
+    add t0 t0 t1
+    lw a3 -8(t0) # column
+    lw a4 0(t0)
+    sub a4 a4 a3 # width is calculated using psum
+    lw a5 4(t0) # height
+    # a4 = width, a5 = height
+    la t0 player1.position
+    sh a4 4(t0)
+    sh a5 6(t0)
+
+    mv s0 a3 # sprite column for player 1 (only used until we draw player 1)
+
+    # Update player 0
+    lh t0 player0.cur
+    slli t0 t0 3
+    la t1 player0.sizes
+    add t0 t0 t1
+    lw a3 -8(t0) # column
+    lw a4 0(t0)
+    sub a4 a4 a3 # width is calculated using psum
+    lw a5 4(t0) # height
+    # a4 = width, a5 = height
+    la t0 player0.position
+    sh a4 4(t0)
+    sh a5 6(t0)
+
+    mv s1 a3 # sprite column for player 0 (only used until we draw player 0)
 
     # Draw background
     la a0 bgbuf0
@@ -69,36 +102,26 @@ game.main.loop:
 
     # Draw player 1
     la a0 player1.ss
-    la a2 player1.position
-    lhu a1 0(a2)
-    lhu a2 2(a2)
-    lh t0 player1.cur
-    slli t0 t0 3
-    la t1 player1.sizes
-    add t0 t0 t1
-    lw a3 -8(t0) # column
-    lw a4 0(t0)
-    sub a4 a4 a3 # width is calculated using psum
-    lw a5 4(t0) # height
-    sub a1 a1 a5 # drawn from bottom
+    la a5 player1.position
+    lhu a1 0(a5)
+    lhu a2 2(a5)
+    mv a3 s0
+    lhu a4 4(a5)
+    lhu a5 6(a5)
+    sub a1 a1 a5 # we store the bottom row, but draw from the top
     mv a6 s11
     lbu a7 player1.side
     call sprites.cdraw
 
     # Draw player 0
     la a0 player0.ss
-    la a2 player0.position
-    lhu a1 0(a2)
-    lhu a2 2(a2)
-    lh t0 player0.cur
-    slli t0 t0 3
-    la t1 player0.sizes
-    add t0 t0 t1
-    lw a3 -8(t0) # column
-    lw a4 0(t0)
-    sub a4 a4 a3 # width is calculated using psum
-    lw a5 4(t0) # height
-    sub a1 a1 a5 # drawn from bottom
+    la a5 player0.position
+    lhu a1 0(a5)
+    lhu a2 2(a5)
+    mv a3 s1
+    lhu a4 4(a5)
+    lhu a5 6(a5)
+    sub a1 a1 a5 # we store the bottom row, but draw from the top
     mv a6 s11
     lbu a7 player0.side
     call sprites.cdraw
@@ -215,13 +238,13 @@ game.load_assets.exit:
 # Resets the game so a previous round doesn't affect the initial player positions and stuff
 game.reset:
     # Reset player positions
-    # player0.position: .half 213, 26
-    # player1.position: .half 213, 250
-    la a0 player0.position
-    li t0 1704149
-    sw t0 0(a0)
-    li t0 16384213
-    sw t0 4(a0)
+    # player0.position: .half 213, 26, 0, 0
+    # player1.position: .half 213, 250, 0, 0
+    # la a0 player0.position
+    # li t0 1704149
+    # sw t0 0(a0)
+    # li t0 16384213
+    # sw t0 8(a0)
 
     # Reset hp
     la a0 player0.health

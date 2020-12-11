@@ -48,18 +48,6 @@ game.main.loop:
     # call input.print_scancode
     call input.handle
 
-    # Load positions for legacy reasons
-    la a0 player0.position
-    lh t0 2(a0)
-    lh t1 10(a0)
-
-    # Update sides (gets t0 and t1 from the block above)
-    la a0 player0.side
-    slt t0 t1 t0
-    sb t0 0(a0)
-    xori t0 t0 1
-    sb t0 1(a0)
-
     # Update width and height from sprites
     # Update player 1
     lh t0 player1.cur
@@ -92,6 +80,25 @@ game.main.loop:
     sh a5 6(t0)
 
     mv s1 a3 # sprite column for player 0 (only used until we draw player 0)
+
+    # Clamp positions
+    la a0 player0.position
+    call game.clamp_position
+    la a0 player1.position
+    call game.clamp_position
+
+    # Load positions for legacy reasons
+    la a0 player0.position
+    lh t0 2(a0)
+    lh t1 10(a0)
+
+    # Update sides (gets t0 and t1 from the block above)
+    la a0 player0.side
+    slt t0 t1 t0
+    sb t0 0(a0)
+    xori t0 t0 1
+    sb t0 1(a0)
+
 
     # Draw background
     la a0 bgbuf0
@@ -298,4 +305,21 @@ game.update_animation:
     sh a2 2(a0)
 
 game.update_animation.exit:
+    ret
+
+# Clamps the player position between the borders
+# Actually, does not check if the column is less than zero, that's done in input.handle
+# because otherwise I can't get it to work
+# ¯\_(ツ)_/¯
+# a0 = player.position
+game.clamp_position:
+    lh t0 2(a0) # column
+
+    li t2 319
+    lhu t1 4(a0) # width
+    sub t1 t2 t1 # t1 = maximum valid column
+
+    ble t0 t1 game.clamp_position.skip
+    sh t1 2(a0)
+game.clamp_position.skip:
     ret

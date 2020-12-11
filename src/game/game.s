@@ -220,7 +220,7 @@ game.load_assets:
     call sprites.load
 
     # Load first player
-    la a0 ss.subzero
+    la a0 ss.liu_kang
     la a1 player0.ss
     call sprites.load
 
@@ -229,7 +229,7 @@ game.load_assets:
     call game.psum_widths
 
     # Load second player
-    la a0 ss.scorpion
+    la a0 ss.subzero
     la a1 player1.ss
     call sprites.load
 
@@ -322,4 +322,5 @@ game.clamp_position:
     ble t0 t1 game.clamp_position.skip
     sh t1 2(a0)
 game.clamp_position.skip:
+
     ret

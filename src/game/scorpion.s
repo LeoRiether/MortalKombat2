@@ -8,7 +8,5 @@
         sizes_end:
         delays: .byte funmed funmed funmed funmed funmed funmed # aIdle
         next: .half 1, 2, 3, 4, 5, 0
-        back: .space 128
-
         starts: .half
             0

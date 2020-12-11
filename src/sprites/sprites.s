@@ -228,11 +228,11 @@ sprites.draw_hp.outer:
         sb t6 0(a6)
         addi a6 a6 -1
         addi a4 a4 -1
-        bgez a4 sprites.draw_hp.inner
+        bgtz a4 sprites.draw_hp.inner
 
     addi a3 a3 -1
     addi a7 a7 320
-    bgez a3 sprites.draw_hp.outer
+    bgtz a3 sprites.draw_hp.outer
 
 sprites.draw_hp.exit:
     ret

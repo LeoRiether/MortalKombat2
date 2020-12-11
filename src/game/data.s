@@ -22,7 +22,6 @@
                             11 12 13 14 15 16 17 18 10 # aWalk
                             20 20 # aCrouch
                             22 23 24 25 0 # aKick
-        player0.back: .space 128
         player0.starts: .half
             0 # aIdle
             10 # aWalk
@@ -36,7 +35,6 @@
         player1.sizes_end:
         player1.delays: .byte funmed funmed funmed funmed funmed funmed # aIdle
         player1.next: .half 1, 2, 3, 4, 5, 0
-        player1.back: .space 128
         player1.starts: .half
             0
             0

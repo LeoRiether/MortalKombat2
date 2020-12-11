@@ -43,27 +43,32 @@ input.handle:
 
     # u (kick)
     lw t0 0(a7)
-    andi t0 t0 scanKick
+    li t3 scanKick
+    and t0 t0 t3
     bnez t0 input.handle.kick
 
     # right
     lw t0 4(a7)
-    andi t0 t0 scanRight
+    li t3 scanRight
+    and t0 t0 t3
     bnez t0 input.handle.right
 
     # left
     lw t0 0(a7)
-    andi t0 t0 scanLeft
+    li t3 scanLeft
+    and t0 t0 t3
     bnez t0 input.handle.left
 
     # up
     lw t0 0(a7)
-    andi t0 t0 scanUp
+    li t3 scanUp
+    and t0 t0 t3
     bnez t0 input.handle.up
 
     # down
     lw t0 0(a7)
-    andi t0 t0 scanDown
+    li t3 scanDown
+    and t0 t0 t3
     bnez t0 input.handle.down
 
 input.handle.none:

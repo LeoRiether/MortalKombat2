@@ -233,6 +233,10 @@ game.load_assets:
     la a1 player1.ss
     call sprites.load
 
+    # Above Zero
+    la a0 player1.ss
+    call sprites.invert
+
     la a0 player1.sizes
     la a1 player1.sizes_end
     call game.psum_widths

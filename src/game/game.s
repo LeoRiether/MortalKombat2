@@ -394,19 +394,35 @@ game.check_hit0:
     la a7 player0.position
     lhu a0 0(a7)
     lhu a1 2(a7)
-    la a7 player0.hitbox
-    lhu t0 2(a7)
+    la a6 player0.hitbox
+    lhu t0 2(a6)
     sub a0 a0 t0
-    lhu t0 0(a7)
+    lhu t0 0(a6)
     add a1 a1 t0
 
     sh a0 0(sp) # row
     sh a1 2(sp) # column
-    lhu a0 4(a7) # width
+    lhu a0 4(a6) # width
     sh a0 4(sp)
-    lhu a0 6(a7) # height
+    lhu a0 6(a6) # height
     sh a0 6(sp)
 
+    lb t0 player0.side
+    beqz t0 game.check_hit0.skip_flip # we don't need to flip the hitbox!
+
+    # flip the hitbox by adding (-2×hitbox_offset_x - hitbox_width + player_width) to the hitbox column
+    # remember, the column is in a1
+    lhu t0 4(a7) # player width
+    add a1 a1 t0
+    lhu t0 4(sp) # hitbox width
+    sub a1 a1 t0
+    lhu t0 0(a6) # hitbox offset x
+    sub a1 a1 t0
+    sub a1 a1 t0
+
+    sh a1 2(sp)
+
+    game.check_hit0.skip_flip:
     # now 0(sp) has the hitbox
 
     mv a0 sp

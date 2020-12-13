@@ -218,6 +218,10 @@ sprites.load.wo_palette:
     ecall
 
 sprites.load.exit:
+    li a7 57 # Close the file!
+    mv a0 s0
+    ecall
+
     lw s0 0(sp)
     lw s1 4(sp)
     lw ra 8(sp)

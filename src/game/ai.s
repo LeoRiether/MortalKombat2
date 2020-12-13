@@ -3,14 +3,33 @@
 #
 
 .data
-    ai_list: .word 3, ai.random ai.nothing ai.kick
+    ai_list: .word 3, ai.nothing ai.kick ai.random
 
-    ai: ai.kick
+    ai: ai.random
 
 .text
 
 # Chooses a random AI
 ai.random:
+    li a7 40
+    li a0 1
+    csrr a1 time
+    ecall # Rand seed
+
+    li a7 42
+    li a0 1
+    lw a1 ai_list
+    addi a1 a1 -1 # exclude ai.random from the options
+    ecall # Rand int in [0, ai_list.length)
+
+    la t0 ai_list
+    addi a0 a0 1
+    slli a0 a0 2
+    add t0 t0 a0
+    lw t0 0(t0)
+
+    sw t0 ai t1
+
     ret
 
 # Does nothing

@@ -267,10 +267,10 @@ game.reset:
     # player0.position: .half 213, 26, 0, 0
     # player1.position: .half 213, 250, 0, 0
     la a0 player0.position
-    # li t0 1704149
-    # sw t0 0(a0)
-    # li t0 16384213
-    # sw t0 8(a0)
+    li t0 1704149
+    sw t0 0(a0)
+    li t0 16384213
+    sw t0 8(a0)
 
     # Reset hp
     la a0 player0.health

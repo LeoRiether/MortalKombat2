@@ -20,7 +20,7 @@
         player0.delays: .byte funmed funmed funmed funmed funmed funslow funmed funmed funmed funmed # aIdle
                       funfast funfast funfast funfast funfast funfast funfast funfast funfast # aWalk
                       funfast funfast # aCrouch
-                      funmed funfast funmed 9 6 # aKick
+                      funmed funfast 8 6 6 # aKick
                       funslower # aHit
         player0.next: .half 1 2 3 4 5 6 7 8 9 0 # aIdle
                             11 12 13 14 15 16 17 18 10 # aWalk
@@ -87,7 +87,7 @@
     # bounding boxes!
     # row, column, width, height
     player0.position: .half 213, 250, 0, 0 # player0 starts on the right here, but this is fixed in game.reset
-    player1.position: .half 213, 26, 0, 0
+    player1.position: .half 213, 100, 0, 0
 
     player0.name: .string "Sub-Zero"
     player1.name: .string "Liu Kang"

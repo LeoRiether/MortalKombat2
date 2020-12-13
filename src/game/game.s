@@ -5,6 +5,7 @@
 .include "anim_eqvs.s"
 .include "input.s"
 .include "data.s"
+.include "ai.s"
 
 .text
 
@@ -54,6 +55,10 @@ game.main.loop:
     # Do the thing written in the lines below (unless it's commented)
     # call input.print_scancode
     call input.handle
+
+    # Update AI (basically an input.handle, but for the computer)
+    lw t0 ai
+    jalr ra t0 0
 
     # Update width and height from sprites
     # Update player 1
@@ -365,11 +370,7 @@ game.check_hit:
     addi sp sp -12 # [0, 8) + sp are taken to build hitboxes
     sw ra 8(sp)
 
-game.check_hit0:
     lhu t1 player0.cur # animation frame
-    lhu t2 player0.hit_frame
-    bne t1 t2 game.check_hit1 # player0 is not in the hit frame
-
     slli t2 t1 1
     la t0 player0.id
     add t0 t0 t2
@@ -386,6 +387,12 @@ game.check_hit0:
     lhu t0 0(t0) # t0 = animation ID
     li t1 aHit
     beq t0 t1 game.check_hit.exit # player1 is already hit
+
+
+game.check_hit0:
+    lhu t1 player0.cur # animation frame
+    lhu t2 player0.hit_frame
+    bne t1 t2 game.check_hit1 # player0 is not in the hit frame
 
     # Maybe player0's hitbox intersects player1's hurtbox!
 
@@ -454,7 +461,71 @@ game.check_hit0:
 game.check_hit1:
 
     # no need to check if player1 is hit, this is checked in check_hit0
+    lhu t1 player1.cur # animation frame
+    lhu t2 player1.hit_frame
+    bne t1 t2 game.check_hit.exit # player1 is not in the hit frame
 
+    # Maybe player1's hitbox intersects player0's hurtbox!
+
+    # Build player1's hitbox in 0(sp)
+    # format: .half row, column, width, height
+    la a7 player1.position
+    lhu a0 0(a7)
+    lhu a1 2(a7)
+    la a6 player1.hitbox
+    lhu t0 2(a6)
+    sub a0 a0 t0
+    lhu t0 0(a6)
+    add a1 a1 t0
+
+    sh a0 0(sp) # row
+    sh a1 2(sp) # column
+    lhu a0 4(a6) # width
+    sh a0 4(sp)
+    lhu a0 6(a6) # height
+    sh a0 6(sp)
+
+    lb t0 player1.side
+    beqz t0 game.check_hit1.skip_flip # we don't need to flip the hitbox!
+
+    # flip the hitbox by adding (-2×hitbox_offset_x - hitbox_width + player_width) to the hitbox column
+    # remember, the column is in a1
+    lhu t0 4(a7) # player width
+    add a1 a1 t0
+    lhu t0 4(sp) # hitbox width
+    sub a1 a1 t0
+    lhu t0 0(a6) # hitbox offset x
+    sub a1 a1 t0
+    sub a1 a1 t0
+
+    sh a1 2(sp)
+
+    game.check_hit1.skip_flip:
+    # now 0(sp) has the hitbox
+
+    mv a0 sp
+    la a1 player0.position
+    jal game.intersect
+
+    beqz a0 game.check_hit.exit # no hit!
+
+    # hit!
+    # Change player0's animation to aHit
+    la a0 player0.cur
+    la a1 player0.starts
+    li t0 aHit
+    slli t0 t0 1
+    add a1 a1 t0
+    lhu a1 0(a1) # a1 = aHit frame
+    sh a1 0(a0)
+    li a1 funslower
+    sh a1 2(a0)
+
+    # Damage player 0
+    la a0 player0.health
+    lb a1 0(a0)
+    addi a1 a1 kick_damage
+    sb a1 0(a0)
 game.check_hit.exit:
     lw ra 8(sp)
     addi sp sp 12

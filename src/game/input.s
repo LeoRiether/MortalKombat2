@@ -30,7 +30,7 @@ input.handle:
     la a1 player0.id
     slli t2 t1 1
     add t2 t2 a1 # pointer to animation id
-    lh t2 0(t2) # current animation id
+    lhu t2 0(t2) # current animation id
 
     # We should not accept input if the animation is an attack (> aCrouch)
     li t0 aCrouch

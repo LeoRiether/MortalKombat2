@@ -20,7 +20,7 @@
         player0.delays: .byte funmed funmed funmed funmed funmed funslow funmed funmed funmed funmed # aIdle
                       funfast funfast funfast funfast funfast funfast funfast funfast funfast # aWalk
                       funfast funfast # aCrouch
-                      funmed funfast funmed 7 funmed # aKick
+                      funmed funfast funmed 9 6 # aKick
                       funslower # aHit
         player0.next: .half 1 2 3 4 5 6 7 8 9 0 # aIdle
                             11 12 13 14 15 16 17 18 10 # aWalk
@@ -33,6 +33,10 @@
             19 # aCrouch
             21 # aKick
             26 # aHit
+
+        player0.hit_frame: .half 23
+        #                     offset x, offset y, width, height
+        player0.hitbox: .half 52, 60, 24, 22
 
     liu_kang:
         player1.id: .half aIdle aIdle aIdle aIdle aIdle aIdle
@@ -64,11 +68,10 @@
             17 # aKick
             21 # aHit
 
+        player1.hit_frame: .half 20
+        #                     offset x, offset y, width, height
+        player1.hitbox: .half 46, 54, 26, 22
 
-    # TODO: define the maximum spritesheet size
-    .word 0 # for alignment purposes
-    player0.ss: .space 58000
-    player1.ss: .space 58000
 
     player0.cur: .half 0, 0 # current animation, how many frames until an update should be made
     player1.cur: .half 0, 0
@@ -79,9 +82,8 @@
     player0.health: .byte 50
     player1.health: .byte 1
 
-    player0.hp_countdown: .byte 80
+    player0.hp_countdown: .byte hpdrain_dt
 
-    .word 0
     # bounding boxes!
     # row, column, width, height
     player0.position: .half 213, 26, 0, 0

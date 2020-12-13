@@ -1,4 +1,3 @@
-.eqv dtframe 20
 
 .macro sleep(%ms)
     li a7 32

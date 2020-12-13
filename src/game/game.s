@@ -44,6 +44,9 @@ game.main.loop:
     la a2 player1.delays
     call game.update_animation
 
+    # Check if any player is hit
+    call game.check_hit
+
     # Kill player0 slowly
     call dificuldade_crescente
 
@@ -346,11 +349,134 @@ dificuldade_crescente:
     ret
 
 dificuldade_crescente.damage:
-    li t0 80
+    li t0 hpdrain_dt
     sb t0 0(a0)
 
     la a0 player0.health
     lbu t0 0(a0)
-    addi t0 t0 -1
+    addi t0 t0 hpdrain_amount
     sb t0 0(a0)
+    ret
+
+# Checks if any player is hit
+game.check_hit:
+    addi sp sp -12 # [0, 8) + sp are taken to build hitboxes
+    sw ra 8(sp)
+
+game.check_hit0:
+    lhu t1 player0.cur # animation frame
+    lhu t2 player0.hit_frame
+    bne t1 t2 game.check_hit1 # player0 is not in the hit frame
+
+    slli t2 t1 1
+    la t0 player0.id
+    add t0 t0 t2
+    lhu t0 0(t0) # t0 = animation ID
+
+    li t1 aHit
+    beq t0 t1 game.check_hit.exit # player0 is already hit
+
+    # check if player 1 is not already hit
+    lhu t1 player1.cur # animation frame
+    slli t2 t1 1
+    la t0 player1.id
+    add t0 t0 t2
+    lhu t0 0(t0) # t0 = animation ID
+    li t1 aHit
+    beq t0 t1 game.check_hit.exit # player1 is already hit
+
+    # Maybe player0's hitbox intersects player1's hurtbox!
+
+    # Build player0's hitbox in 0(sp)
+    # format: .half row, column, width, height
+    la a7 player0.position
+    lhu a0 0(a7)
+    lhu a1 2(a7)
+    la a7 player0.hitbox
+    lhu t0 2(a7)
+    sub a0 a0 t0
+    lhu t0 0(a7)
+    add a1 a1 t0
+
+    sh a0 0(sp) # row
+    sh a1 2(sp) # column
+    lhu a0 4(a7) # width
+    sh a0 4(sp)
+    lhu a0 6(a7) # height
+    sh a0 6(sp)
+
+    # now 0(sp) has the hitbox
+
+    mv a0 sp
+    la a1 player1.position
+    jal game.intersect
+
+    beqz a0 game.check_hit1 # no hit!
+
+    # hit!
+    # Change player1's animation to aHit
+    la a0 player1.cur
+    la a1 player1.starts
+    li t0 aHit
+    slli t0 t0 1
+    add a1 a1 t0
+    lhu a1 0(a1) # a1 = aHit frame
+    sh a1 0(a0)
+    li a1 funslower
+    sh a1 2(a0)
+
+    # Damage player 1
+    la a0 player1.health
+    lb a1 0(a0)
+    addi a1 a1 kick_damage
+    sb a1 0(a0)
+
+# Copy of check_hit0 because I was too lazy to pass arguments to game.check_hit
+game.check_hit1:
+
+    # no need to check if player1 is hit, this is checked in check_hit0
+
+game.check_hit.exit:
+    lw ra 8(sp)
+    addi sp sp 12
+    ret
+
+# Checks if two rectangles intersect
+#                                                 0    2       4      6
+# Rectangles are represented in memory by a .half row, column, width, height
+# Points in the rectangle are made widht row - height and column + width
+# Beware the MINUS height!
+# a0 = address of the first rectangle
+# a1 = address of the second rectangle
+# Returns 1 on a0 if they intersect, 0 otherwise
+game.intersect:
+
+    # Check if Y axis intervals are disjoint
+    lh t0 0(a0) # t0 = bottom row 0
+    lh t1 6(a0)
+    sub t1 t0 t1 # t1 = top row 0
+    lh t2 0(a1) # t2 = bottom row 1
+    lh t3 6(a1)
+    sub t3 t2 t3 # t3 = top row 1
+
+    blt t0 t3 game.intersect.no # 0 is completely above 1
+    blt t2 t1 game.intersect.no # 1 is completely above 0
+
+    # Check if X axis intervals are disjoint
+    lh t0 2(a0) # t0 = left row 0
+    lh t1 4(a0)
+    add t1 t0 t1 # t1 = right row 0
+    lh t2 2(a1) # t2 = left row 1
+    lh t3 4(a1)
+    add t3 t2 t3 # t3 = right row 1
+
+    blt t1 t2 game.intersect.no # 0 is completely to the left of 1
+    blt t3 t0 game.intersect.no # 1 is completely to the left of 0
+
+    # Intersection!
+    li a0 1
+    ret
+
+game.intersect.no:
+    mv a0 zero
     ret

@@ -46,6 +46,7 @@ game.main.loop:
 
     # Check if any player is hit
     call game.check_hit
+    call game.hit_slide
 
     # Kill player0 slowly
     call dificuldade_crescente
@@ -104,7 +105,6 @@ game.main.loop:
     sb t0 0(a0)
     xori t0 t0 1
     sb t0 1(a0)
-
 
     # Draw background
     la a0 bgbuf0
@@ -262,10 +262,10 @@ game.reset:
     # player0.position: .half 213, 26, 0, 0
     # player1.position: .half 213, 250, 0, 0
     la a0 player0.position
-    li t0 1704149
-    sw t0 0(a0)
-    li t0 16384213
-    sw t0 8(a0)
+    # li t0 1704149
+    # sw t0 0(a0)
+    # li t0 16384213
+    # sw t0 8(a0)
 
     # Reset hp
     la a0 player0.health
@@ -450,6 +450,7 @@ game.check_hit0:
     sb a1 0(a0)
 
 # Copy of check_hit0 because I was too lazy to pass arguments to game.check_hit
+# (soon™)
 game.check_hit1:
 
     # no need to check if player1 is hit, this is checked in check_hit0
@@ -497,4 +498,52 @@ game.intersect:
 
 game.intersect.no:
     mv a0 zero
+    ret
+
+# Moves a hit player to the right or left
+game.hit_slide:
+game.hit_slide.p0:
+    # move player 0
+    lhu a0 player0.cur
+    slli a0 a0 1
+    la a1 player0.id
+    add a0 a0 a1
+    lhu a0 0(a0)
+
+    li t0 aHit
+    bne a0 t0 game.hit_slide.p1 # p0 is not hit
+
+    # p0 is hit!
+    lb t0 player0.side
+    slli t0 t0 1
+    addi t0 t0 -1
+    la a0 player0.position
+    lh a1 2(a0)
+    add a1 a1 t0
+    sh a1 2(a0)
+
+    ret
+
+# Copy of p0 because it's easier
+game.hit_slide.p1:
+    # move player 1
+    lhu a0 player1.cur
+    slli a0 a0 1
+    la a1 player1.id
+    add a0 a0 a1
+    lhu a0 0(a0)
+
+    li t0 aHit
+    bne a0 t0 game.hit_slide.exit # p1 is not hit
+
+    # p0 is hit!
+    lb t0 player1.side
+    slli t0 t0 1
+    addi t0 t0 -1
+    la a0 player1.position
+    lh a1 2(a0)
+    add a1 a1 t0
+    sh a1 2(a0)
+
+game.hit_slide.exit:
     ret

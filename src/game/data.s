@@ -79,6 +79,8 @@
     player0.health: .byte 50
     player1.health: .byte 1
 
+    player0.hp_countdown: .byte 80
+
     .word 0
     # bounding boxes!
     # row, column, width, height

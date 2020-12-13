@@ -44,6 +44,9 @@ game.main.loop:
     la a2 player1.delays
     call game.update_animation
 
+    # Kill player0 slowly
+    call dificuldade_crescente
+
     # Do the thing written in the lines below (unless it's commented)
     # call input.print_scancode
     call input.handle
@@ -331,4 +334,23 @@ game.clamp_position:
     sh t1 2(a0)
 game.clamp_position.skip:
 
+    ret
+
+# Kills player0 slowly
+dificuldade_crescente:
+    la a0 player0.hp_countdown
+    lbu t0 0(a0)
+    addi t0 t0 -1
+    beqz t0 dificuldade_crescente.damage
+    sb t0 0(a0)
+    ret
+
+dificuldade_crescente.damage:
+    li t0 80
+    sb t0 0(a0)
+
+    la a0 player0.health
+    lbu t0 0(a0)
+    addi t0 t0 -1
+    sb t0 0(a0)
     ret

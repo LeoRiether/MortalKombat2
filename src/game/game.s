@@ -141,12 +141,12 @@ game.main.loop:
 
     # Draw health bars
     la a0 player0.health
-    lbu a0 0(a0)
+    lb a0 0(a0)
     li a1 16
     mv a2 s11
     call sprites.draw_hp
     la a0 player1.health
-    lbu a0 0(a0)
+    lb a0 0(a0)
     li a1 204
     mv a2 s11
     call sprites.draw_hp
@@ -322,12 +322,11 @@ game.update_animation.exit:
     ret
 
 # Clamps the player position between the borders
-# Actually, does not check if the column is less than zero, that's done in input.handle
-# because otherwise I can't get it to work
-# ¯\_(ツ)_/¯
 # a0 = player.position
 game.clamp_position:
     lh t0 2(a0) # column
+
+    bltz t0 game.clamp_position.less_than_min
 
     li t2 319
     lhu t1 4(a0) # width
@@ -336,7 +335,10 @@ game.clamp_position:
     ble t0 t1 game.clamp_position.skip
     sh t1 2(a0)
 game.clamp_position.skip:
+    ret
 
+game.clamp_position.less_than_min:
+    sh zero 2(a0)
     ret
 
 # Kills player0 slowly

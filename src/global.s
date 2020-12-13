@@ -1,7 +1,7 @@
 .eqv dtframe 20
 .eqv hpdrain_dt 80
 .eqv hpdrain_amount -1
-.eqv kick_damage -20
+.eqv kick_damage -15
 
 .data
     # Static buffers to put backgrounds in

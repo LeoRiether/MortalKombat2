@@ -114,9 +114,7 @@ input.handle.left:
     la a7 player0.position
     lh t0 2(a7)
     addi t0 t0 -3
-    bltz t0 input.handle.left.skip_negative
     sh t0 2(a7)
-input.handle.left.skip_negative:
 
     # Set animation to aWalk
     li t0 aWalk
@@ -133,11 +131,6 @@ input.handle.left.skip_negative:
     ret
 
 input.handle.up:
-    # Move player
-    la a7 player0.position
-    lh t0 0(a7)
-    addi t0 t0 -3
-    sh t0 0(a7)
 
     ret
 

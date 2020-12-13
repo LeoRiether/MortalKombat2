@@ -10,6 +10,7 @@ menu.main:
     # Store the titlescreen in bgbuf0
     la a0 file.titlescreen_static
     la a1 bgbuf0
+    li a2 1
     call sprites.load
 
     # Draw titlescreen
@@ -19,7 +20,13 @@ menu.main:
     mv a3 s11 # frame
     call sprites.draw
 
-    sleep(100)
+    j menu.main.exit
+
+menu.main.wait_for_keypress:
+    li t0 KDMMIO_Ctrl
+    lw t0 0(t0)
+    lw t1 4(t0)
+    beqz t0 menu.main.wait_for_keypress
 
 menu.main.exit:
     lw ra 0(sp)

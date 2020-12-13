@@ -1,12 +1,16 @@
 .data
-    file.titlescreen_static: .string "assets/MKI.packed.bin" # 30
-    file.sub_test: .string "assets/sub_test.bin" # 20
-    file.sub_zero: .string "assets/sub0.bin" # 16
-    ss.scorpion: .string "assets/scorpion.ss.packed.bin" # 23
-    ss.subzero: .string "assets/subzero.ss.packed.bin" # 22
-    ss.liu_kang: .string "assets/liu_kang.ss.packed.bin" # 22
+    file.titlescreen_static: .string "a/MKI.packed.bin"
+    file.choose_bg: .string "bg/choose.bin"
+    ss.subzero: .string "a/subzero.ss.packed.bin"
+    ss.liu_kang: .string "a/liu_kang.ss.packed.bin"
 
-    file.deadpool: .string "assets/deadpool.bin" # 20
-    file.portal: .string "assets/portal.packed.bin" # 20
+    bg.armory: .string "bg/armory.packed.bin"
+    bg.deadpool: .string "bg/deadpool.packed.bin"
+    bg.forest: .string "bg/forest.packed.bin"
+    bg.portal: .string "bg/portal.packed.bin"
+    bg.kahn: .string "bg/kahn.packed.bin"
+    bgs: .word bg.armory bg.deadpool bg.forest bg.portal bg.kahn
 
-    .align 3
+
+    # TODO: align manually
+    .word 0

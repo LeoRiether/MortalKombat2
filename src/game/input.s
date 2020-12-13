@@ -164,7 +164,7 @@ input.handle.kick:
     beq t2 t0 input.handle.kick.default
 
     # can't kick
-    ret
+    # ret
 
 input.handle.kick.default:
     # t1 = aKick start frame
@@ -182,5 +182,15 @@ input.handle.kick.default:
     lbu a1 0(a0)
     addi a1 a1 -10
     sb a1 0(a0)
+
+    la a0 player1.cur
+    la a1 player1.starts
+    li a2 aHit
+    slli a2 a2 1
+    add a1 a1 a2
+    lhu a1 0(a1)
+    sh a1 0(a0)
+    li a1 funslower
+    sh a1 2(a0)
 
     ret

@@ -165,13 +165,16 @@ sprites.cdraw.exit:
 # the 8 is for 2 words: (width, height))
 # a0 = file string
 # a1 = buffer address
+# a2 = has palette
 sprites.load:
-    addi sp sp -12
+    addi sp sp -16
     sw s0 0(sp)
     sw s1 4(sp)
     sw ra 8(sp)
+    sw s2 12(sp)
 
     mv s1 a1
+    mv s2 a2
 
     # Open file
     # a0 is the file string here
@@ -183,11 +186,14 @@ sprites.load:
 
     li a7 63
     mv a1 s1
+    beqz s2 sprites.load.wo_palette
+sprites.load.with_palette:
     li a2 24 # Read the palette and (width, height)
     ecall
 
     lw t0 16(s1)
     lw t1 20(s1)
+
     mul a2 t0 t1 # Read t0 * t1 / 2 more bytes
     srai a2 a2 1
 
@@ -196,11 +202,27 @@ sprites.load:
     addi a1 s1 24
     ecall
 
+    j sprites.load.exit
+
+sprites.load.wo_palette:
+    li a2 8 # Read (width, height)
+    ecall
+
+    lw t0 0(s1)
+    lw t1 4(s1)
+
+    mul a2 t0 t1 # Read t0 * t1 more bytes
+    li a7 63
+    mv a0 s0
+    addi a1 s1 8
+    ecall
+
 sprites.load.exit:
     lw s0 0(sp)
     lw s1 4(sp)
     lw ra 8(sp)
-    addi sp sp 12
+    lw s2 12(sp)
+    addi sp sp 16
     ret
 
 # Draws a health bar
@@ -244,7 +266,7 @@ sprites.invert:
 sprites.invert.loop:
     lbu t0 0(a0)
     li t1 0xC7 # don't invert transparency
-    beq t0 t1 sprites.invert.skip
+    # beq t0 t1 sprites.invert.skip
 
     # invert color stored at a0
     xori t0 t0 0xff # is this actually an invert? I'm not even sure. Probably looks ok
@@ -256,4 +278,46 @@ sprites.invert.loop:
     blt a0 a1 sprites.invert.loop
 
 sprites.invert.exit:
+    ret
+
+# Should only be used with the convert.exe'd bitmaps (without palette)
+# Draws a sprite on (row=a1, col=a2) of the screen, on frame a3
+# PLEASE make sure the width is a multiple of 4! This is important and faster and stuff!
+# a0 = address of the sprite
+# a1 = row
+# a2 = column
+# a3 = frame, either 0 or 1
+sprites.draw2:
+    lw a4 4(a0) # height
+    lw a5 0(a0) # width
+    addi a0 a0 8
+
+    li t0 NUMCOLUNAS
+    mul t0 a1 t0
+    add t0 t0 a2
+    li t1 0xFF000000
+    slli a3 a3 20
+    or a3 t1 a3
+    add a3 t0 a3
+    # a3 = first pixel position in memory (on the right frame already)
+
+sprites.draw2.outer:
+    # We use a4=height as a decrementing counter from now on
+    mv t0 a5 # also a decrementing counter, now for the remaining width
+    mv t1 a3 # copy of the memory position we're drawing/writing to
+    sprites.draw2.inner:
+        lw t2 0(a0)
+        sw t2 0(t1)
+        addi a0 a0 4
+        addi t1 t1 4
+        addi t0 t0 -4
+
+        bgtz t0 sprites.draw2.inner
+
+    addi a4 a4 -1
+    addi a3 a3 NUMCOLUNAS
+
+    bgtz a4 sprites.draw2.outer
+
+sprites.draw2.exit:
     ret

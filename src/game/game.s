@@ -210,18 +210,25 @@ game.main.exit:
     ret
 
 # Loads game assets
+# Arguments are passed in saved registers because reasons
+# s2 = stage index
 game.load_assets:
     addi sp sp -4
     sw ra 0(sp)
 
     # Load background
-    la a0 file.portal
+    slli t0 s2 2
+    la a0 bgs
+    add a0 a0 t0
+    lw a0 0(a0)
     la a1 bgbuf0
+    li a2 1
     call sprites.load
 
     # Load first player
-    la a0 ss.liu_kang
+    la a0 ss.subzero
     la a1 player0.ss
+    li a2 1
     call sprites.load
 
     la a0 player0.sizes
@@ -229,8 +236,9 @@ game.load_assets:
     call game.psum_widths
 
     # Load second player
-    la a0 ss.subzero
+    la a0 ss.liu_kang
     la a1 player1.ss
+    li a2 1
     call sprites.load
 
     la a0 player1.sizes

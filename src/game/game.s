@@ -43,6 +43,8 @@ game.main.loop:
     sub t0 s10 t0 # now - last frame
     sub s9 s9 t0
 
+    bltz s9 game.main.go_to_kickality # timeout
+
     # Check if a player is dead
     call game.check_dead
 
@@ -242,9 +244,9 @@ game.main.loop:
 
     # Should we go to kickality?
     li t0 gs_p0_kickality
-    beq s8 t0 game.main.loop.go_to_kickality
+    beq s8 t0 game.main.go_to_kickality
     li t0 gs_p1_kickality
-    beq s8 t0 game.main.loop.go_to_kickality
+    beq s8 t0 game.main.go_to_kickality
 
     addi t0 s10 dtframe # next time we should enter the loop
 game.main.loop.wait:
@@ -264,7 +266,7 @@ game.main.exit:
     addi sp sp 20
     ret
 
-game.main.loop.go_to_kickality:
+game.main.go_to_kickality:
     swap_frame(s11, t0)
     call kickality
     j game.main.exit

@@ -12,6 +12,9 @@ kickality:
     li a2 1
     call sprites.load
 
+    # Write some spaces to erase "finish him"
+    call kickality.draw_spaces
+
     # Change str.player_win string to have the right player
     bgtz s8 kickality.p1_win
 kickality.p0_win:
@@ -81,4 +84,25 @@ kickality.exit:
     lw s8 4(sp)
     lw ra 0(sp)
     addi sp sp 8
+    ret
+
+
+# Draws some spaces to erase "finish him"
+kickality.draw_spaces:
+    addi sp sp -12
+    sw ra 0(sp)
+    sw s8 8(sp)
+
+    la a0 str.spaces
+    li a1 80
+    li a2 37
+    li a3 0x0000
+    xori a4 s11 1
+    call printString
+
+kickality.draw_spaces.exit:
+
+    lw ra 0(sp)
+    lw s8 8(sp)
+    addi sp sp 12
     ret

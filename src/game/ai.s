@@ -5,7 +5,7 @@
 .data
     ai_list: .word 4, ai.nothing ai.kick ai.crouch ai.random
 
-    ai: ai.random
+    ai: ai.nothing
 
 .text
 

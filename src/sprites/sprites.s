@@ -264,25 +264,26 @@ sprites.draw_hp.exit:
     ret
 
 # Inverts the color of a spritesheet
+# Unused
 # a0 = spritesheet address
-sprites.invert:
-    addi a1 a0 16
-sprites.invert.loop:
-    lbu t0 0(a0)
-    li t1 0xC7 # don't invert transparency
-    # beq t0 t1 sprites.invert.skip
+    # sprites.invert:
+    #     addi a1 a0 16
+    # sprites.invert.loop:
+    #     lbu t0 0(a0)
+    #     li t1 0xC7 # don't invert transparency
+    #     # beq t0 t1 sprites.invert.skip
 
-    # invert color stored at a0
-    xori t0 t0 0xff # is this actually an invert? I'm not even sure. Probably looks ok
-    sb t0 0(a0)
+    #     # invert color stored at a0
+    #     xori t0 t0 0xff # is this actually an invert? I'm not even sure. Probably looks ok
+    #     sb t0 0(a0)
 
-    sprites.invert.skip:
+    #     sprites.invert.skip:
 
-    addi a0 a0 1
-    blt a0 a1 sprites.invert.loop
+    #     addi a0 a0 1
+    #     blt a0 a1 sprites.invert.loop
 
-sprites.invert.exit:
-    ret
+    # sprites.invert.exit:
+    #     ret
 
 # Should only be used with the convert.exe'd bitmaps (without palette)
 # Draws a sprite on (row=a1, col=a2) of the screen, on frame a3

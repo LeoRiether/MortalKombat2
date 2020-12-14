@@ -2,10 +2,19 @@
 #  Fights and stuff
 #
 
+# Game States
+# Stored on s8
+.eqv gs_running 0
+.eqv gs_p0_win -1 # p0 is alive and in "finish him" mode
+.eqv gs_p1_win 1 # p1 is alive and in "finish him" mode
+.eqv gs_p0_kickality -2 # p0 has kickalited
+.eqv gs_p1_kickality 2 # p1 has kickalited
+
 .include "anim_eqvs.s"
 .include "input.s"
 .include "data.s"
 .include "ai.s"
+.include "kickality.s"
 
 .text
 
@@ -34,6 +43,9 @@ game.main.loop:
     sub t0 s10 t0 # now - last frame
     sub s9 s9 t0
 
+    # Check if a player is dead
+    call game.check_dead
+
     # Update animation frames
     la a0 player0.cur
     la a1 player0.next
@@ -51,13 +63,19 @@ game.main.loop:
     # Kill player0 slowly
     call dificuldade_crescente
 
-    # Do the thing written in the lines below (unless it's commented)
+    # Do the thing written below
+    li t0 gs_p1_win
+    beq s8 t0 game.main.loop.dont_handle_input
     # call input.print_scancode
     call input.handle
+    game.main.loop.dont_handle_input:
 
-    # Update AI (basically an input.handle, but for the computer)
+    # Update AI (basically an input.handle, but for the computer), if it's not dead
+    li t0 gs_p0_win
+    beq s8 t0 game.main.loop.dont_update_ai
     lw t0 ai
     jalr ra t0 0
+    game.main.loop.dont_update_ai:
 
     # Update width and height from sprites
     # Update player 1
@@ -159,10 +177,11 @@ game.main.loop:
     # for example, a4 = frame is only set in the next call
     # Also, SYSTEMv21 calls use some saved registers!
     # So let's save the ones we need, hopefully we won't forget any
-    addi sp sp -12
+    addi sp sp -16
     sw s11 0(sp)
     sw s10 4(sp)
     sw s9 8(sp)
+    sw s8 12(sp)
 
     # Draw player names
     lw a0 player0.name
@@ -182,7 +201,7 @@ game.main.loop:
     li a2 3
     li a3 0xc7ff
     call printIntUnsigned
-    li a0 1 # actual number of wins
+    li a0 0 # actual number of wins
     call printIntUnsigned
     la a0 str.wins
     li a1 38
@@ -195,11 +214,37 @@ game.main.loop:
     li a2 18
     call printIntUnsigned
 
+    # Finish him!
+    lw s8 12(sp)
+    beqz s8 game.main.loop.dont_finish_him
+    la a0 str.finish
+    li a1 116
+    li a2 37
+    li a3 0x05ff
+    csrr t0 time
+    li t1 150 # 2×frames
+    rem t0 t0 t1
+    srai t1 t1 1
+    blt t0 t1 game.main.loop.dont_draw_inverted_finish_him
+    li a3 0xff05
+    game.main.loop.dont_draw_inverted_finish_him:
+    mv a4 s11
+    call printString
+
+    game.main.loop.dont_finish_him:
+
     # Restore saved registers
     lw s11 0(sp)
     lw s10 4(sp)
     lw s9 8(sp)
-    addi sp sp 12
+    lw s8 12(sp)
+    addi sp sp 16
+
+    # Should we go to kickality?
+    li t0 gs_p0_kickality
+    beq s8 t0 game.main.loop.go_to_kickality
+    li t0 gs_p1_kickality
+    beq s8 t0 game.main.loop.go_to_kickality
 
     addi t0 s10 dtframe # next time we should enter the loop
 game.main.loop.wait:
@@ -218,6 +263,11 @@ game.main.exit:
     lw s3 16(sp)
     addi sp sp 20
     ret
+
+game.main.loop.go_to_kickality:
+    swap_frame(s11, t0)
+    call kickality
+    j game.main.exit
 
 # Loads game assets
 # Arguments are passed in saved registers because reasons
@@ -289,6 +339,9 @@ game.reset:
     # Reset time to end round
     # I don't really know why I use a register for this
     li s9 102390
+
+    # Reset game state
+    li s8 gs_running
 
 game.reset.exit:
     ret
@@ -465,6 +518,10 @@ game.check_hit0:
     addi a1 a1 kick_damage
     sb a1 0(a0)
 
+    # Kickality?
+    li a0 gs_p0_kickality
+    bnez s8 game.check_hit.go_to_kickality
+
 # Copy of check_hit0 because I was too lazy to pass arguments to game.check_hit
 # (soon™)
 game.check_hit1:
@@ -535,10 +592,18 @@ game.check_hit1:
     lb a1 0(a0)
     addi a1 a1 kick_damage
     sb a1 0(a0)
+
+    # Kickality?
+    li a0 gs_p1_kickality
+    bnez s8 game.check_hit.go_to_kickality
 game.check_hit.exit:
     lw ra 8(sp)
     addi sp sp 12
     ret
+
+game.check_hit.go_to_kickality:
+    mv s8 a0
+    j game.check_hit.exit
 
 # Checks if two rectangles intersect
 #                                                 0    2       4      6
@@ -626,4 +691,29 @@ game.hit_slide.p1:
     sh a1 2(a0)
 
 game.hit_slide.exit:
+    ret
+
+# Checks if any player is dead, and updates s8 accordingly
+# s8: 0 => all alive, 1 => only player1 is alive, -1 => only player0 is alive
+game.check_dead:
+    bnez s8 game.check_dead.exit # someone already died
+
+    la a0 player0.health
+    lb t0 0(a0) # t0 = player0's hp
+    blez t0 game.check_dead.p0_died
+
+    lb t0 1(a0) # t0 = player1's hp
+    blez t0 game.check_dead.p1_died
+
+    # no one died
+    ret
+game.check_dead.p0_died:
+    li s8 1
+    li s9 6000
+    ret
+
+game.check_dead.p1_died:
+    li s8 -1
+    li s9 6000
+game.check_dead.exit:
     ret

@@ -14,7 +14,6 @@
     bg.forest: .string "bg/forest.packed.bin"
     bg.portal: .string "bg/portal.packed.bin"
     bg.kahn: .string "bg/kahn.packed.bin"
-    bgs: .word bg.armory bg.deadpool bg.forest bg.portal bg.kahn
 
     name.subzero: .string "Sub-Zero"
     name.scorpion: .string "Scorpion"
@@ -22,5 +21,8 @@
     name.noob: .string "Noob"
     name.bob: .string "Bob"
 
+    sprite.kickality: .string "a/kickality.packed.bin"
+
+    bgs: .word bg.armory bg.deadpool bg.forest bg.portal bg.kahn
     names.subzeros: .word name.subzero name.scorpion name.reptile name.noob name.bob
     ss.subzeros: .word ss.subzero ss.scorpion ss.reptile ss.noob ss.bob

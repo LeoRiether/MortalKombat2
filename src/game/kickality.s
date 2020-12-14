@@ -13,23 +13,23 @@ kickality:
     call sprites.load
 
     # Change str.player_win string to have the right player
-    la a0 str.player_win
     bgtz s8 kickality.p1_win
 kickality.p0_win:
-    li t0 '1'
-    sb t0 7(a0)
+    lw a0 player0.name
     j kickality.p_win.after
 
 kickality.p1_win:
-    li t0 '2'
-    sb t0 7(a0)
+    la a0 player1.name
 
 kickality.p_win.after:
 
-    # Write "Player X Wins"
+    # Write "{player name} Wins"
     li a1 108
     li a2 37
     li a3 0x00ff
+    xori a4 s11 1
+    call printString
+    la a0 str.wins
     xori a4 s11 1
     call printString
     lw s8 4(sp)

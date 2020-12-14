@@ -1,0 +1,50 @@
+#
+# Copied from choose_bg.s
+#
+
+.data
+    # do NOT put anything here
+    # we use too much memory already
+
+.text
+
+# Runs the "choose player" screen
+# Returns the index of the chosen one in a0
+cpl.main:
+    addi sp sp -4
+    sw ra 0(sp)
+
+    # Load the background
+    la a0 file.choose_player
+    la a1 player0.ss # reuse the spritesheets! (overflows into player1.ss, but it's fine)
+    li a2 0
+    call sprites.load
+
+    # Draw it
+    la a0 player0.ss
+    li a1 0
+    li a2 0
+    mv a3 s11
+    call sprites.draw2
+
+cpl.input:
+    sleep(100)
+    li t0 KDMMIO_Ctrl
+    lw t1 0(t0) # t1 = kdmmio control bit
+    andi t1 t1 1
+    beqz t1 cpl.input
+
+    lw t1 4(t0) # t1 = key
+    li a0 '1'
+    li a1 '5'
+    blt t1 a0 cpl.input # too low
+    bgt t1 a1 cpl.input # too high
+
+    # just right
+    sub a0 t1 a0 # a0 = map index
+
+cpl.main.exit:
+
+    lw ra 0(sp)
+    addi sp sp 4
+    ret

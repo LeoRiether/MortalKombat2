@@ -12,5 +12,7 @@
 
     str.wins: .string "wins"
     str.flawless: .string "Flawless Victory"
+    str.finish: .string "Finish him!"
+    str.kickality: .string "Kickality"
 
 .text

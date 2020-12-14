@@ -1,6 +1,7 @@
 .data
     file.titlescreen_static: .string "a/MKI.packed.bin"
     file.choose_bg: .string "bg/choose.bin"
+    file.choose_player: .string "a/choose.bin"
     ss.subzero: .string "a/subzero.ss.packed.bin"
     ss.scorpion: .string "a/scorpion.ss.packed.bin"
     ss.reptile: .string "a/reptile.ss.packed.bin"

@@ -9,6 +9,7 @@
 
 .include "menu.s"
 .include "game/game.s"
+.include "choose_player.s"
 .include "choose_bg.s"
 
 .text
@@ -17,9 +18,11 @@ main:
     debug_int(a0)
 
     call menu.main
+    call cpl.main
+    mv s0 a0
     call cbg.main
     mv a2 a0
-    li a0 4
+    mv a0 s0
     call game.main
 
 main.exit:

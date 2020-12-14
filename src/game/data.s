@@ -89,5 +89,5 @@
     player0.position: .half 213, 250, 0, 0 # player0 starts on the right here, but this is fixed in game.reset
     player1.position: .half 213, 100, 0, 0
 
-    player0.name: .string "Sub-Zero"
+    player0.name: .word name.bob
     player1.name: .string "Liu Kang"

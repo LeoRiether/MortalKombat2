@@ -11,9 +11,8 @@
 
 # Runs a full fight
 # a0 = player 0 index
-# a1 = player 1 index
+# a1 = player 1 index (unused)
 # a2 = stage index
-# a3 = ai update function pointer
 game.main:
     addi sp sp -20
     sw ra 0(sp)
@@ -166,7 +165,7 @@ game.main.loop:
     sw s9 8(sp)
 
     # Draw player names
-    la a0 player0.name
+    lw a0 player0.name
     li a1 16 # x
     li a2 18 # y
     li a3 0xc700
@@ -222,6 +221,7 @@ game.main.exit:
 
 # Loads game assets
 # Arguments are passed in saved registers because reasons
+# s0 = player0 index
 # s2 = stage index
 game.load_assets:
     addi sp sp -4
@@ -236,8 +236,17 @@ game.load_assets:
     li a2 1
     call sprites.load
 
+    # Set player0 name
+    slli t0 s0 2
+    la a0 names.subzeros
+    add a0 a0 t0
+    lw a0 0(a0)
+    sw a0 player0.name a1
+
     # Load first player
-    la a0 ss.subzero
+    la a0 ss.subzeros
+    add a0 a0 t0
+    lw a0 0(a0)
     la a1 player0.ss
     li a2 1
     call sprites.load

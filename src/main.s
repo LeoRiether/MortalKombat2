@@ -19,6 +19,7 @@ main:
     call menu.main
     call cbg.main
     mv a2 a0
+    li a0 4
     call game.main
 
 main.exit:

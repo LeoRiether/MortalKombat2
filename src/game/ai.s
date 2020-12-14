@@ -3,7 +3,7 @@
 #
 
 .data
-    ai_list: .word 3, ai.nothing ai.kick ai.random
+    ai_list: .word 4, ai.nothing ai.kick ai.crouch ai.random
 
     ai: ai.random
 
@@ -59,4 +59,12 @@ ai.kick:
 ai.kick.exit:
     ret
 
+# Just crouches
+ai.crouch:
+    la t0 player1.starts
+    lhu t0 4(t0) # 4(player1.starts) => aCrouch start
+    addi t0 t0 1 # second frame
+    la t1 player1.cur
+    sh t0 0(t1)
+    ret
 

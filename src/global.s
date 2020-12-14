@@ -1,5 +1,5 @@
 .eqv dtframe 20
-.eqv hpdrain_dt 80
+.eqv hpdrain_dt 48
 .eqv hpdrain_amount -1
 .eqv kick_damage -15
 

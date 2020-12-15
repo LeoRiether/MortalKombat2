@@ -3,7 +3,7 @@
 #
 
 .data
-    ai_list: .word 4, ai.nothing ai.kick ai.crouch ai.random
+    ai_list: .word 4, ai.nothing ai.kick ai.crouch ai.smart ai.random
 
     ai: ai.random
 
@@ -68,3 +68,8 @@ ai.crouch:
     sh t0 0(t1)
     ret
 
+# Gets close and kicks
+ai.smart:
+
+ai.smart.exit:
+    ret

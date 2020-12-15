@@ -36,7 +36,6 @@ game.main:
     mv s3 a3
 
     jal game.load_assets
-    jal game.load_assets
     jal game.reset
 
     li s11 0 # frame
@@ -332,13 +331,17 @@ game.reset:
     sw t0 8(a0)
 
     # Reset current animation to idling
-    sw zero player0.cur t0
-    sw zero player1.cur t0
+    la t0 player0.cur
+    sh zero 0(t0)
+    sh zero 2(t0)
+    sh zero 4(t0)
+    sh zero 6(t0)
 
     # Reset hp
     la a0 player0.health
-    li t0 25700 # 100 hp for both
-    sh t0 0(a0)
+    li t0 100
+    sb t0 0(a0)
+    sb t0 1(a0)
 
     # Reset time to end round
     # I don't really know why I use a register for this
@@ -346,6 +349,10 @@ game.reset:
 
     # Reset game state
     li s8 gs_running
+
+    # Reset AI
+    la t0 ai.random
+    sw t0 ai t1
 
 game.reset.exit:
     ret
@@ -382,7 +389,7 @@ game.update_animation:
     slli t0 t0 1
     add t0 t0 a1
     lh t0 0(t0) # next frame
-    sw t0 0(a0)
+    sh t0 0(a0)
 
     # Update how many frames until change
     add a2 t0 a2

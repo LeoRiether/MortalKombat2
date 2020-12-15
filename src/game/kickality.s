@@ -49,7 +49,7 @@ kickality.yes_kickality:
     # KICKALITY
     la a0 bgbuf0
     li a1 50
-    li a2 95
+    li a2 98
     xori a3 s11 1
     call sprites.draw
 
@@ -78,12 +78,14 @@ kickality.flawless:
 
 kickality.after_flawless:
 
-    sleep(4000)
+    sleep(3500)
 
     la a0 player0.ss
     li a1 0x03
     xori a2 s11 1
     call random_fill_screen
+
+    sleep(500)
 
 kickality.exit:
     lw ra 0(sp)

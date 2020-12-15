@@ -24,7 +24,6 @@ cbg.main:
     call sprites.draw2
 
 cbg.input:
-    sleep(100)
     li t0 KDMMIO_Ctrl
     lw t1 0(t0) # t1 = kdmmio control bit
     andi t1 t1 1

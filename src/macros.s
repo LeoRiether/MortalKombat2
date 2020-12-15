@@ -55,3 +55,8 @@
 .macro debug_char(%reg)
     debug_with(%reg, 11)
 .end_macro
+
+.macro exit()
+    li a7 10
+    ecall
+.end_macro

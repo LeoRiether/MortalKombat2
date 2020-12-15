@@ -1,3 +1,13 @@
+#######################
+#                     #
+#  Controls:          #
+#     A: move left    #
+#     D: move right   #
+#     S: crouch       #
+#     U: kick         #
+#                     #
+#######################
+
 .include "lamar/MACROSv21.s"
 .include "macros.s"
 

@@ -351,7 +351,7 @@ game.reset:
     li s8 gs_running
 
     # Reset AI
-    la t0 ai.smart
+    la t0 ai.random
     sw t0 ai t1
 
 game.reset.exit:

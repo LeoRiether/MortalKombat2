@@ -70,7 +70,8 @@
 
         player1.hit_frame: .half 20
         #                     offset x, offset y, width, height
-        player1.hitbox: .half 46, 54, 26, 22
+        # player1.hitbox: .half 46, 54, 26, 22 # bugged for some reason
+        player1.hitbox: .half 46, 70, 26, 22
 
 
     player0.cur: .half 0, 0 # current animation, how many frames until an update should be made

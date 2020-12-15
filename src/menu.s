@@ -20,7 +20,7 @@ menu.main:
     mv a3 s11 # frame
     call sprites.draw
 
-    j menu.main.exit
+    # j menu.main.exit
 
     sleep(1200)
 
@@ -37,7 +37,7 @@ menu.main.wait_for_keypress:
     lw t0 0(t1)
     lw t2 4(t1)
     # debug_int(t0)
-    sleep(500)
+    sleep(100)
     beqz t0 menu.main.wait_for_keypress
 
 menu.main.exit:

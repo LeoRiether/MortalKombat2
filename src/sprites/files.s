@@ -18,7 +18,7 @@
     name.subzero: .string "Sub-Zero"
     name.scorpion: .string "Scorpion"
     name.reptile: .string "Reptile"
-    name.noob: .string "Noob"
+    name.noob: .string "Noob Saibot"
     name.bob: .string "Bob"
 
     sprite.kickality: .string "a/kickality.packed.bin"

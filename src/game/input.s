@@ -157,7 +157,7 @@ input.handle.kick:
     beq t2 t0 input.handle.kick.default
 
     # can't kick
-    # ret
+    ret
 
 input.handle.kick.default:
     # t1 = aKick start frame

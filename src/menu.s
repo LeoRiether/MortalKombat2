@@ -20,12 +20,22 @@ menu.main:
     mv a3 s11 # frame
     call sprites.draw
 
-    j menu.main.exit
+    # j menu.main.exit
+
+    sleep(1200)
+
+    li a7 104
+    la a0 str.press_play
+    li a1 80
+    li a2 215
+    li a3 0xc7ff
+    mv a4 s11
+    ecall
 
 menu.main.wait_for_keypress:
-    li t0 KDMMIO_Ctrl
-    lw t0 0(t0)
-    lw t1 4(t0)
+    li t1 KDMMIO_Ctrl
+    lw t0 0(t1)
+    lw t2 4(t1)
     beqz t0 menu.main.wait_for_keypress
 
 menu.main.exit:

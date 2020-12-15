@@ -10,6 +10,7 @@
     player1.ss: .space 58000
     bgbuf0: .space 38424
 
+    str.press_play: .string "Press any key to play"
     str.spaces: .string "                      " # I have no idea what's wrong with my loop that draws spaces
     str.wins: .string " Wins"
     str.flawless: .string "Flawless Victory"

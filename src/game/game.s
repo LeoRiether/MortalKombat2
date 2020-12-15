@@ -25,11 +25,17 @@
 game.main:
     addi sp sp -20
     sw ra 0(sp)
-    push(a0 s0 4)
-    push(a1 s1 8)
-    push(a2 s2 12)
-    push(a3 s3 16)
+    sw a0 4(sp)
+    sw a1 8(sp)
+    sw a2 12(sp)
+    sw a3 16(sp)
 
+    mv s0 a0
+    mv s1 a1
+    mv s2 a2
+    mv s3 a3
+
+    jal game.load_assets
     jal game.load_assets
     jal game.reset
 
@@ -303,19 +309,11 @@ game.load_assets:
     li a2 1
     call sprites.load
 
-    la a0 player0.sizes
-    la a1 player0.sizes_end
-    call game.psum_widths
-
     # Load second player
     la a0 ss.liu_kang
     la a1 player1.ss
     li a2 1
     call sprites.load
-
-    la a0 player1.sizes
-    la a1 player1.sizes_end
-    call game.psum_widths
 
 game.load_assets.exit:
     lw ra 0(sp)
@@ -332,6 +330,10 @@ game.reset:
     sw t0 0(a0)
     li t0 16384213
     sw t0 8(a0)
+
+    # Reset current animation to idling
+    sw zero player0.cur t0
+    sw zero player1.cur t0
 
     # Reset hp
     la a0 player0.health

@@ -3,7 +3,7 @@
 #
 
 .data
-    ai_list: .word 4, ai.nothing ai.kick ai.crouch ai.smart ai.random
+    ai_list: .word 5, ai.nothing ai.kick ai.crouch ai.smart ai.random
 
     ai: ai.random
 
